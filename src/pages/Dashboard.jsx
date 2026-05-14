@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { LayoutDashboard, Palette, Building2, AppWindow, Rocket, Wifi, Bot, ArrowRight, MessageCircle } from 'lucide-react';
+import { LayoutDashboard, Palette, Building2, AppWindow, Rocket, Wifi, Bot, ArrowRight, MessageCircle, X } from 'lucide-react';
 import PageHeader from '@/components/shared/PageHeader';
 import StatCard from '@/components/shared/StatCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -15,6 +15,8 @@ const quickLinks = [
 ];
 
 export default function Dashboard() {
+  const [chatOpen, setChatOpen] = useState(false);
+
   const { data: orgProfiles = [], isLoading: loadingOrg } = useQuery({
     queryKey: ['orgProfiles'],
     queryFn: () => base44.entities.OrgProfile.list(),
@@ -112,7 +114,7 @@ export default function Dashboard() {
 
       {/* Chat with Beacon */}
       <button
-        onClick={() => window.open('https://app.base44.com/superagent/6a056407a50c45c592324875', '_blank')}
+        onClick={() => setChatOpen(true)}
         className="w-full bg-[#005696] hover:bg-[#004175] text-white rounded-xl p-6 transition-all duration-300 mb-8 flex items-center gap-4 group"
       >
         <div className="w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center group-hover:bg-white/30 transition-colors flex-shrink-0">
@@ -124,6 +126,27 @@ export default function Dashboard() {
         </div>
         <ArrowRight className="w-5 h-5 text-white/80 group-hover:text-white transition-colors flex-shrink-0" />
       </button>
+
+      {/* Chat Modal */}
+      {chatOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-card rounded-xl w-full max-w-2xl h-[80vh] flex flex-col border border-border">
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <h2 className="font-semibold text-foreground">Chat with Beacon</h2>
+              <button
+                onClick={() => setChatOpen(false)}
+                className="p-1 hover:bg-secondary rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-foreground" />
+              </button>
+            </div>
+            <iframe
+              src="https://app.base44.com/superagent/6a056407a50c45c592324875"
+              className="flex-1 w-full border-none rounded-b-lg"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Quick Access */}
       <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Quick Access</h3>
