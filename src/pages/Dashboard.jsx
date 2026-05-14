@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
@@ -16,24 +16,23 @@ const quickLinks = [
 
 export default function Dashboard() {
   const [chatOpen, setChatOpen] = useState(false);
+  const [stats, setStats] = useState({ total: 0, connected: 0, superagents: 0 });
+
+  useEffect(() => {
+    base44.entities.AppRegistry.list().then(records => {
+      const apps = records.filter(r => r.audience !== 'Superagent');
+      setStats({
+        total: apps.length,
+        connected: apps.filter(r => r.is_hub_connected).length,
+        superagents: records.filter(r => r.audience === 'Superagent').length
+      });
+    });
+  }, []);
 
   const { data: orgProfiles = [], isLoading: loadingOrg } = useQuery({
     queryKey: ['orgProfiles'],
     queryFn: () => base44.entities.OrgProfile.list(),
   });
-
-  const { data: allRecords = [], isLoading: loadingApps } = useQuery({
-    queryKey: ['apps'],
-    queryFn: () => base44.entities.AppRegistry.list(),
-  });
-
-  const apps = allRecords.filter(r => r.audience !== 'Superagent');
-  const connected = apps.filter(r => r.is_hub_connected === true);
-  const superagents = allRecords.filter(r => r.audience === 'Superagent');
-
-  const totalAppsCount = apps.length;
-  const connectedAppsCount = connected.length;
-  const superagentsCount = superagents.length;
 
   const { data: hubConfigs = [], isLoading: loadingConfigs } = useQuery({
     queryKey: ['hubConfigs'],
@@ -42,7 +41,7 @@ export default function Dashboard() {
 
   const org = orgProfiles[0];
   const brandingConfigs = hubConfigs.filter(c => c.category === 'branding');
-  const isLoading = loadingOrg || loadingApps || loadingConfigs;
+  const isLoading = loadingOrg || loadingConfigs;
 
   return (
     <div className="w-full">
@@ -87,18 +86,18 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <StatCard
               label="Total Apps"
-              value={totalAppsCount}
+              value={stats.total}
               icon={AppWindow}
             />
             <StatCard
               label="Connected"
-              value={connectedAppsCount}
-              subtitle={`${totalAppsCount ? Math.round((connectedAppsCount / totalAppsCount) * 100) : 0}% of total`}
+              value={stats.connected}
+              subtitle={`${stats.total ? Math.round((stats.connected / stats.total) * 100) : 0}% of total`}
               icon={Wifi}
             />
             <StatCard
               label="Superagents"
-              value={superagentsCount}
+              value={stats.superagents}
               icon={Bot}
             />
             <StatCard
