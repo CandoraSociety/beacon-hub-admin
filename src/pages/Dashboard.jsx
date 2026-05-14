@@ -19,7 +19,7 @@ export default function Dashboard() {
   const [stats, setStats] = useState({ total: 0, connected: 0, superagents: 0 });
 
   useEffect(() => {
-    base44.entities.AppRegistry.list().then(records => {
+    base44.entities.AppRegistry.list({ limit: 100 }).then(records => {
       const apps = records.filter(r => r.audience !== 'Superagent');
       setStats({
         total: apps.length,
