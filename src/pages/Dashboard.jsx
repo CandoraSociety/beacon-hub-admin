@@ -23,12 +23,12 @@ export default function Dashboard() {
   const { data: apps = [], isLoading: loadingApps } = useQuery({
     queryKey: ['apps'],
     queryFn: async () => {
-      return await base44.entities.AppRegistry.list(-1, 1000);
+      return await base44.entities.AppRegistry.list({ limit: 100 });
     },
   });
 
   const totalAppsCount = apps.reduce((count, app) => app.audience !== 'Superagent' ? count + 1 : count, 0);
-  const connectedAppsCount = apps.reduce((count, app) => app.is_hub_connected ? count + 1 : count, 0);
+  const connectedAppsCount = apps.reduce((count, app) => app.is_hub_connected && app.audience !== 'Superagent' ? count + 1 : count, 0);
   const superagentsCount = apps.reduce((count, app) => app.audience === 'Superagent' ? count + 1 : count, 0);
 
   const { data: hubConfigs = [], isLoading: loadingConfigs } = useQuery({
