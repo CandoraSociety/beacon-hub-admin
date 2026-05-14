@@ -4,10 +4,10 @@ import Sidebar from './Sidebar';
 
 export default function AdminLayout() {
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-background">
       <Sidebar />
-      <main className="flex-1 min-h-screen transition-all duration-300">
-        <div className="p-8 max-w-6xl">
+      <main className="ml-64 min-h-screen transition-all duration-300">
+        <div className="p-8">
           <Outlet />
         </div>
       </main>
