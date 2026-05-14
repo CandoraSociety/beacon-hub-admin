@@ -24,9 +24,7 @@ export default function Dashboard() {
 
   const { data: allRecords = [], isLoading: loadingApps } = useQuery({
     queryKey: ['apps'],
-    queryFn: async () => {
-      return await base44.entities.AppRegistry.list({ limit: 100 });
-    },
+    queryFn: () => base44.entities.AppRegistry.list(),
   });
 
   const apps = allRecords.filter(r => r.audience !== 'Superagent');
