@@ -36,7 +36,7 @@ export default function Dashboard() {
   const isLoading = loadingOrg || loadingApps || loadingConfigs;
 
   return (
-    <div>
+    <div className="w-full">
       <PageHeader
         title="Dashboard"
         description="Overview of your organization hub and connected applications."
@@ -103,22 +103,22 @@ export default function Dashboard() {
 
       {/* Quick Access */}
       <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Quick Access</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
         {quickLinks.map(({ path, label, description, icon: Icon }) => (
           <Link
             key={path}
             to={path}
-            className="bg-card border border-border rounded-xl p-5 hover:border-primary/40 transition-all duration-300 group"
+            className="bg-card border border-border rounded-xl p-5 hover:border-primary/40 transition-all duration-300 group min-w-0"
           >
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+            <div className="flex items-center gap-4 min-w-0">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors flex-shrink-0">
                 <Icon className="w-5 h-5 text-primary" />
               </div>
-              <div className="flex-1">
-                <h4 className="text-sm font-semibold text-foreground">{label}</h4>
-                <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-sm font-semibold text-foreground truncate">{label}</h4>
+                <p className="text-xs text-muted-foreground mt-0.5 truncate">{description}</p>
               </div>
-              <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
             </div>
           </Link>
         ))}

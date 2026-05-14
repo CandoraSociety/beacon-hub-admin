@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Palette, Building2, AppWindow, Rocket, Hexagon, ChevronLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { SidebarContext } from '@/lib/SidebarContext';
 
 const navItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -14,7 +15,7 @@ const navItems = [
 
 export default function Sidebar() {
   const [currentPath, setCurrentPath] = useState('/');
-  const [collapsed, setCollapsed] = useState(false);
+  const { collapsed, setCollapsed } = useContext(SidebarContext);
 
   useEffect(() => {
     const updatePath = () => {
