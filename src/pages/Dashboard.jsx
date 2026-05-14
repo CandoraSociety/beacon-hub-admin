@@ -20,16 +20,20 @@ export default function Dashboard() {
     queryFn: () => base44.entities.OrgProfile.list(),
   });
 
-  const { data: apps = [], isLoading: loadingApps } = useQuery({
+  const { data: allRecords = [], isLoading: loadingApps } = useQuery({
     queryKey: ['apps'],
     queryFn: async () => {
       return await base44.entities.AppRegistry.list({ limit: 100 });
     },
   });
 
-  const totalAppsCount = apps.reduce((count, app) => app.audience !== 'Superagent' ? count + 1 : count, 0);
-  const connectedAppsCount = apps.reduce((count, app) => app.is_hub_connected && app.audience !== 'Superagent' ? count + 1 : count, 0);
-  const superagentsCount = apps.reduce((count, app) => app.audience === 'Superagent' ? count + 1 : count, 0);
+  const apps = allRecords.filter(r => r.audience !== 'Superagent');
+  const connected = apps.filter(r => r.is_hub_connected === true);
+  const superagents = allRecords.filter(r => r.audience === 'Superagent');
+
+  const totalAppsCount = apps.length;
+  const connectedAppsCount = connected.length;
+  const superagentsCount = superagents.length;
 
   const { data: hubConfigs = [], isLoading: loadingConfigs } = useQuery({
     queryKey: ['hubConfigs'],
