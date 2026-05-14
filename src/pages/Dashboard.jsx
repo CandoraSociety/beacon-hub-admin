@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { LayoutDashboard, Palette, Building2, AppWindow, Rocket, Wifi, WifiOff, ArrowRight } from 'lucide-react';
+import { LayoutDashboard, Palette, Building2, AppWindow, Rocket, Wifi, Bot, ArrowRight } from 'lucide-react';
 import PageHeader from '@/components/shared/PageHeader';
 import StatCard from '@/components/shared/StatCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -23,13 +23,13 @@ export default function Dashboard() {
   const { data: apps = [], isLoading: loadingApps } = useQuery({
     queryKey: ['apps'],
     queryFn: async () => {
-      return await base44.entities.AppRegistry.list();
+      return await base44.entities.AppRegistry.list(-1, 1000);
     },
   });
 
-  const totalAppsCount = apps.length;
-  const connectedAppsCount = apps.filter(a => a.is_hub_connected).length;
-  const disconnectedAppsCount = apps.filter(a => !a.is_hub_connected).length;
+  const totalAppsCount = apps.reduce((count, app) => app.audience !== 'Superagent' ? count + 1 : count, 0);
+  const connectedAppsCount = apps.reduce((count, app) => app.is_hub_connected ? count + 1 : count, 0);
+  const superagentsCount = apps.reduce((count, app) => app.audience === 'Superagent' ? count + 1 : count, 0);
 
   const { data: hubConfigs = [], isLoading: loadingConfigs } = useQuery({
     queryKey: ['hubConfigs'],
@@ -93,9 +93,9 @@ export default function Dashboard() {
               icon={Wifi}
             />
             <StatCard
-              label="Disconnected"
-              value={disconnectedAppsCount}
-              icon={WifiOff}
+              label="Superagents"
+              value={superagentsCount}
+              icon={Bot}
             />
             <StatCard
               label="Branding Configs"
