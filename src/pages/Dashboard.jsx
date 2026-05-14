@@ -23,18 +23,13 @@ export default function Dashboard() {
   const { data: apps = [], isLoading: loadingApps } = useQuery({
     queryKey: ['apps'],
     queryFn: async () => {
-      const allApps = [];
-      let skip = 0;
-      let hasMore = true;
-      while (hasMore) {
-        const batch = await base44.entities.AppRegistry.list();
-        if (batch.length === 0) hasMore = false;
-        else allApps.push(...batch);
-        skip += batch.length;
-      }
-      return allApps.length > 0 ? allApps : await base44.entities.AppRegistry.list();
+      return await base44.entities.AppRegistry.list();
     },
   });
+
+  const totalAppsCount = apps.length;
+  const connectedAppsCount = apps.filter(a => a.is_hub_connected).length;
+  const disconnectedAppsCount = apps.filter(a => !a.is_hub_connected).length;
 
   const { data: hubConfigs = [], isLoading: loadingConfigs } = useQuery({
     queryKey: ['hubConfigs'],
@@ -42,7 +37,6 @@ export default function Dashboard() {
   });
 
   const org = orgProfiles[0];
-  const connectedApps = apps.filter(a => a.is_hub_connected);
   const brandingConfigs = hubConfigs.filter(c => c.category === 'branding');
   const isLoading = loadingOrg || loadingApps || loadingConfigs;
 
@@ -89,18 +83,18 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <StatCard
               label="Total Apps"
-              value={apps.length}
+              value={totalAppsCount}
               icon={AppWindow}
             />
             <StatCard
               label="Connected"
-              value={connectedApps.length}
-              subtitle={`${apps.length ? Math.round((connectedApps.length / apps.length) * 100) : 0}% of total`}
+              value={connectedAppsCount}
+              subtitle={`${totalAppsCount ? Math.round((connectedAppsCount / totalAppsCount) * 100) : 0}% of total`}
               icon={Wifi}
             />
             <StatCard
               label="Disconnected"
-              value={apps.length - connectedApps.length}
+              value={disconnectedAppsCount}
               icon={WifiOff}
             />
             <StatCard
