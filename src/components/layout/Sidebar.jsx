@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Palette, Building2, AppWindow, Rocket, Hexagon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -12,7 +12,22 @@ const navItems = [
 ];
 
 export default function Sidebar() {
-  const location = useLocation();
+  const [currentPath, setCurrentPath] = useState('/');
+
+  useEffect(() => {
+    const updatePath = () => {
+      setCurrentPath(window.location.pathname);
+    };
+    
+    updatePath();
+    
+    const handlePopState = () => {
+      updatePath();
+    };
+    
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   return (
     <aside className="fixed left-0 top-0 bottom-0 w-64 bg-card border-r border-border flex flex-col z-50">
@@ -32,7 +47,7 @@ export default function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 p-3 space-y-1">
         {navItems.map(({ path, label, icon: Icon }) => {
-          const isActive = location.pathname === path;
+          const isActive = currentPath === path;
           return (
             <Link
               key={path}
