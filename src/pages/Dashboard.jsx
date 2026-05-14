@@ -22,7 +22,18 @@ export default function Dashboard() {
 
   const { data: apps = [], isLoading: loadingApps } = useQuery({
     queryKey: ['apps'],
-    queryFn: () => base44.entities.AppRegistry.list(),
+    queryFn: async () => {
+      const allApps = [];
+      let skip = 0;
+      let hasMore = true;
+      while (hasMore) {
+        const batch = await base44.entities.AppRegistry.list();
+        if (batch.length === 0) hasMore = false;
+        else allApps.push(...batch);
+        skip += batch.length;
+      }
+      return allApps.length > 0 ? allApps : await base44.entities.AppRegistry.list();
+    },
   });
 
   const { data: hubConfigs = [], isLoading: loadingConfigs } = useQuery({
