@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { LayoutDashboard, Palette, Building2, AppWindow, Rocket, Wifi, Bot, ArrowRight } from 'lucide-react';
+import { LayoutDashboard, Palette, Building2, AppWindow, Rocket, Wifi, Bot, ArrowRight, MessageCircle } from 'lucide-react';
 import PageHeader from '@/components/shared/PageHeader';
 import StatCard from '@/components/shared/StatCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -109,6 +109,21 @@ export default function Dashboard() {
           </div>
         </>
       )}
+
+      {/* Chat with Beacon */}
+      <button
+        onClick={() => window.open('https://app.base44.com/superagent/6a056407a50c45c592324875', '_blank')}
+        className="w-full bg-[#005696] hover:bg-[#004175] text-white rounded-xl p-6 transition-all duration-300 mb-8 flex items-center gap-4 group"
+      >
+        <div className="w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center group-hover:bg-white/30 transition-colors flex-shrink-0">
+          <MessageCircle className="w-6 h-6 text-white" />
+        </div>
+        <div className="flex-1 text-left">
+          <h3 className="font-semibold text-white">Chat with Beacon</h3>
+          <p className="text-sm text-white/80">Get help with your hub and applications</p>
+        </div>
+        <ArrowRight className="w-5 h-5 text-white/80 group-hover:text-white transition-colors flex-shrink-0" />
+      </button>
 
       {/* Quick Access */}
       <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Quick Access</h3>
