@@ -1,0 +1,33 @@
+{
+  "name": "HubConfig",
+  "type": "object",
+  "properties": {
+    "key": {
+      "type": "string",
+      "description": "Configuration key name"
+    },
+    "value": {
+      "type": "string",
+      "description": "Configuration value"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "branding",
+        "general",
+        "integration",
+        "notification"
+      ],
+      "description": "Category of the configuration"
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description of this config"
+    }
+  },
+  "required": [
+    "key",
+    "value",
+    "category"
+  ]
+}

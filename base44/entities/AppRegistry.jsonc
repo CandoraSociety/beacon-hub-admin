@@ -1,0 +1,56 @@
+{
+  "name": "AppRegistry",
+  "type": "object",
+  "properties": {
+    "app_name": {
+      "type": "string",
+      "description": "Name of the registered app"
+    },
+    "app_slug": {
+      "type": "string",
+      "description": "URL-friendly slug for the app"
+    },
+    "app_description": {
+      "type": "string",
+      "description": "Short description of the app"
+    },
+    "app_category": {
+      "type": "string",
+      "enum": [
+        "internal",
+        "external",
+        "integration",
+        "tool",
+        "dashboard"
+      ],
+      "description": "Category of the app"
+    },
+    "app_url": {
+      "type": "string",
+      "description": "URL where the app is hosted"
+    },
+    "audience": {
+      "type": "string",
+      "description": "Target audience for the app"
+    },
+    "is_hub_connected": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this app is connected to the hub"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "development",
+        "archived"
+      ],
+      "default": "development",
+      "description": "Current status of the app"
+    }
+  },
+  "required": [
+    "app_name"
+  ]
+}

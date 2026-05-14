@@ -1,0 +1,41 @@
+{
+  "name": "OrgProfile",
+  "type": "object",
+  "properties": {
+    "org_name": {
+      "type": "string",
+      "description": "Organization name"
+    },
+    "org_slug": {
+      "type": "string",
+      "description": "URL-friendly slug"
+    },
+    "org_description": {
+      "type": "string",
+      "description": "Short description of the organization"
+    },
+    "org_logo_url": {
+      "type": "string",
+      "description": "URL to the organization logo"
+    },
+    "org_website": {
+      "type": "string",
+      "description": "Organization website URL"
+    },
+    "contact_email": {
+      "type": "string",
+      "description": "Primary contact email"
+    },
+    "industry": {
+      "type": "string",
+      "description": "Industry or sector"
+    },
+    "timezone": {
+      "type": "string",
+      "description": "Organization timezone"
+    }
+  },
+  "required": [
+    "org_name"
+  ]
+}
