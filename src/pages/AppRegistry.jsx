@@ -1,123 +1,249 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { AppRegistry, HubConfig, OrgProfile, Department } from '@/api/entities';
-import { Palette, Building2, AppWindow, Rocket, Wifi, ArrowRight, MessageCircle, X, Users, Bot } from 'lucide-react';
+import { AppRegistry } from '@/api/entities';
+import { AppWindow, Wifi, WifiOff, Pencil, Trash2, ExternalLink, Plus, X, Save } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import PageHeader from '@/components/shared/PageHeader';
-import StatCard from '@/components/shared/StatCard';
+import { toast } from 'sonner';
 
-const quickLinks = [
-  { path: '/branding', label: 'Branding Control', description: 'Manage colors & visual identity', icon: Palette },
-  { path: '/org-profile', label: 'Org Profile', description: 'Edit organization details', icon: Building2 },
-  { path: '/app-registry', label: 'App Registry', description: 'Manage connected applications', icon: AppWindow },
-  { path: '/new-app', label: 'Launch New App', description: 'Generate app starter prompt', icon: Rocket },
-];
+const statusStyles = {
+  active: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
+  inactive: 'bg-zinc-500/15 text-zinc-400 border-zinc-500/30',
+  development: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
+  archived: 'bg-red-500/15 text-red-400 border-red-500/30',
+};
 
-export default function Dashboard() {
-  const [chatOpen, setChatOpen] = useState(false);
-  const [org, setOrg] = useState(null);
-  const [stats, setStats] = useState({ total: 0, connected: 0, departments: 0, superagents: 0 });
+const emptyForm = {
+  app_name: '',
+  app_url: '',
+  app_description: '',
+  app_category: 'internal',
+  audience: '',
+  status: 'active',
+  is_hub_connected: true,
+};
+
+export default function AppRegistryPage() {
+  const [apps, setApps] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editingApp, setEditingApp] = useState(null);
+  const [form, setForm] = useState(emptyForm);
+  const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [orgRecords, appRecords, deptRecords] = await Promise.all([
-          OrgProfile.list(),
-          AppRegistry.list(),
-          Department.list(),
-        ]);
-        setOrg(orgRecords[0] || null);
-        const nonAgents = appRecords.filter(r => r.audience !== 'Superagent');
-        setStats({
-          total: nonAgents.length,
-          connected: nonAgents.filter(r => r.is_hub_connected).length,
-          departments: deptRecords.length,
-          superagents: appRecords.filter(r => r.audience === 'Superagent').length,
-        });
-      } catch (e) {
-        console.error('Dashboard load error:', e);
-      } finally {
-        setLoading(false);
-      }
+  async function loadApps() {
+    setLoading(true);
+    const records = await AppRegistry.list();
+    setApps(records);
+    setLoading(false);
+  }
+
+  useEffect(() => { loadApps(); }, []);
+
+  function openAdd() {
+    setEditingApp(null);
+    setForm(emptyForm);
+    setShowForm(true);
+  }
+
+  function openEdit(app) {
+    setEditingApp(app);
+    setForm({
+      app_name: app.app_name || '',
+      app_url: app.app_url || '',
+      app_description: app.app_description || '',
+      app_category: app.app_category || 'internal',
+      audience: app.audience || '',
+      status: app.status || 'active',
+      is_hub_connected: app.is_hub_connected ?? true,
+    });
+    setShowForm(true);
+  }
+
+  async function handleSave() {
+    if (!form.app_name.trim()) { toast.error('App name is required'); return; }
+    setSaving(true);
+    if (editingApp) {
+      await AppRegistry.update(editingApp.id, form);
+      toast.success('App updated');
+    } else {
+      await AppRegistry.create(form);
+      toast.success('App added');
     }
-    loadData();
-  }, []);
+    setSaving(false);
+    setShowForm(false);
+    loadApps();
+  }
+
+  async function handleDelete(id) {
+    await AppRegistry.delete(id);
+    toast.success('App removed');
+    loadApps();
+  }
 
   return (
-    <div className="w-full">
-      <PageHeader title="Dashboard" description="Overview of your organization hub and connected applications." />
+    <div>
+      <PageHeader
+        title="App Registry"
+        description="Register and manage all your Base44 apps. Mark which ones are connected to this hub."
+        actions={
+          <Button size="sm" onClick={openAdd}>
+            <Plus className="w-4 h-4 mr-1.5" /> Add App
+          </Button>
+        }
+      />
+
+      {/* Add / Edit Form */}
+      {showForm && (
+        <div className="bg-card border border-primary/30 rounded-xl p-6 mb-6 space-y-4">
+          <div className="flex items-center justify-between mb-1">
+            <h3 className="text-sm font-semibold text-foreground">{editingApp ? 'Edit App' : 'Add New App'}</h3>
+            <button onClick={() => setShowForm(false)} className="p-1 hover:bg-secondary rounded-lg transition-colors">
+              <X className="w-4 h-4 text-muted-foreground" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <Label className="text-xs">App Name *</Label>
+              <Input className="mt-1" placeholder="e.g. CRM App" value={form.app_name} onChange={e => setForm({ ...form, app_name: e.target.value })} />
+            </div>
+            <div>
+              <Label className="text-xs">App URL</Label>
+              <Input className="mt-1" placeholder="https://..." value={form.app_url} onChange={e => setForm({ ...form, app_url: e.target.value })} />
+            </div>
+            <div>
+              <Label className="text-xs">Category</Label>
+              <Select value={form.app_category} onValueChange={v => setForm({ ...form, app_category: v })}>
+                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="internal">Internal</SelectItem>
+                  <SelectItem value="external">External</SelectItem>
+                  <SelectItem value="integration">Integration</SelectItem>
+                  <SelectItem value="tool">Tool</SelectItem>
+                  <SelectItem value="dashboard">Dashboard</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs">Status</Label>
+              <Select value={form.status} onValueChange={v => setForm({ ...form, status: v })}>
+                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="development">Development</SelectItem>
+                  <SelectItem value="archived">Archived</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs">Audience</Label>
+              <Input className="mt-1" placeholder="e.g. Internal team, Customers" value={form.audience} onChange={e => setForm({ ...form, audience: e.target.value })} />
+            </div>
+            <div className="flex items-center gap-3 pt-5">
+              <input
+                type="checkbox"
+                id="hub_connected"
+                checked={form.is_hub_connected}
+                onChange={e => setForm({ ...form, is_hub_connected: e.target.checked })}
+                className="w-4 h-4 accent-primary"
+              />
+              <Label htmlFor="hub_connected" className="text-xs cursor-pointer">Connected to this hub</Label>
+            </div>
+          </div>
+
+          <div>
+            <Label className="text-xs">Description</Label>
+            <Textarea className="mt-1 h-16" placeholder="What does this app do?" value={form.app_description} onChange={e => setForm({ ...form, app_description: e.target.value })} />
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" size="sm" onClick={() => setShowForm(false)}>Cancel</Button>
+            <Button size="sm" onClick={handleSave} disabled={saving}>
+              <Save className="w-3.5 h-3.5 mr-1.5" /> {saving ? 'Saving...' : 'Save App'}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* App List */}
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
-          {Array(4).fill(0).map((_, i) => (
-            <div key={i} className="h-32 rounded-xl bg-muted animate-pulse" />
-          ))}
+        <div className="space-y-3">
+          {Array(3).fill(0).map((_, i) => <div key={i} className="h-16 rounded-xl bg-muted animate-pulse" />)}
+        </div>
+      ) : apps.length === 0 ? (
+        <div className="bg-card border border-border rounded-xl p-16 text-center">
+          <AppWindow className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground mb-4">No apps registered yet.</p>
+          <Button size="sm" onClick={openAdd}><Plus className="w-4 h-4 mr-1.5" /> Add Your First App</Button>
         </div>
       ) : (
-        <>
-          {org && (
-            <div className="bg-card border border-border rounded-xl p-6 mb-8">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center">
-                  <Building2 className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold text-foreground">{org.org_name}</h2>
-                  <p className="text-sm text-muted-foreground">{org.website || 'No website set'}</p>
-                </div>
-                <Link to="/org-profile" className="ml-auto text-xs text-primary hover:text-primary/80 flex items-center gap-1">
-                  Edit <ArrowRight className="w-3 h-3" />
-                </Link>
-              </div>
-            </div>
-          )}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <StatCard label="Total Apps" value={stats.total} icon={AppWindow} />
-            <StatCard label="Hub Connected" value={stats.connected} subtitle={`${stats.total ? Math.round((stats.connected / stats.total) * 100) : 0}% of total`} icon={Wifi} />
-            <StatCard label="Departments" value={stats.departments} icon={Users} />
-            <StatCard label="Superagents" value={stats.superagents} icon={Bot} />
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <div className="grid grid-cols-12 gap-4 px-5 py-3 border-b border-border bg-muted/30 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <div className="col-span-4">App</div>
+            <div className="col-span-2">Category</div>
+            <div className="col-span-2">Status</div>
+            <div className="col-span-2">Hub</div>
+            <div className="col-span-2 text-right">Actions</div>
           </div>
-        </>
-      )}
-      <button onClick={() => setChatOpen(true)} className="w-full bg-[#005696] hover:bg-[#004175] text-white rounded-xl p-6 transition-all duration-300 mb-8 flex items-center gap-4 group">
-        <div className="w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center group-hover:bg-white/30 transition-colors flex-shrink-0">
-          <MessageCircle className="w-6 h-6 text-white" />
-        </div>
-        <div className="flex-1 text-left">
-          <h3 className="font-semibold text-white">Chat with Beacon</h3>
-          <p className="text-sm text-white/80">Get help with your hub and applications</p>
-        </div>
-        <ArrowRight className="w-5 h-5 text-white/80 group-hover:text-white transition-colors flex-shrink-0" />
-      </button>
-      {chatOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-card rounded-xl w-full max-w-2xl h-[80vh] flex flex-col border border-border">
-            <div className="flex items-center justify-between p-4 border-b border-border">
-              <h2 className="font-semibold text-foreground">Chat with Beacon</h2>
-              <button onClick={() => setChatOpen(false)} className="p-1 hover:bg-secondary rounded-lg transition-colors">
-                <X className="w-5 h-5 text-foreground" />
-              </button>
-            </div>
-            <iframe src="https://app.base44.com/superagent/6a056407a50c45c592324875" className="flex-1 w-full border-none rounded-b-lg" />
-          </div>
-        </div>
-      )}
-      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Quick Access</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-        {quickLinks.map(({ path, label, description, icon: Icon }) => (
-          <Link key={path} to={path} className="bg-card border border-border rounded-xl p-5 hover:border-primary/40 transition-all duration-300 group min-w-0">
-            <div className="flex items-center gap-4 min-w-0">
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors flex-shrink-0">
-                <Icon className="w-5 h-5 text-primary" />
+          {apps.map((app) => (
+            <div key={app.id} className="grid grid-cols-12 gap-4 px-5 py-4 border-b border-border last:border-0 items-center hover:bg-muted/20 transition-colors">
+              <div className="col-span-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <AppWindow className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{app.app_name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{app.app_description || '—'}</p>
+                  </div>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="text-sm font-semibold text-foreground truncate">{label}</h4>
-                <p className="text-xs text-muted-foreground mt-0.5 truncate">{description}</p>
+              <div className="col-span-2">
+                <span className="text-xs text-muted-foreground capitalize">{app.app_category || '—'}</span>
               </div>
-              <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+              <div className="col-span-2">
+                <Badge variant="outline" className={`text-[11px] ${statusStyles[app.status] || statusStyles.development}`}>
+                  {app.status || 'development'}
+                </Badge>
+              </div>
+              <div className="col-span-2">
+                {app.is_hub_connected ? (
+                  <div className="flex items-center gap-1.5 text-emerald-400">
+                    <Wifi className="w-3.5 h-3.5" />
+                    <span className="text-xs">Connected</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <WifiOff className="w-3.5 h-3.5" />
+                    <span className="text-xs">Not connected</span>
+                  </div>
+                )}
+              </div>
+              <div className="col-span-2 flex justify-end gap-1.5">
+                {app.app_url && (
+                  <Button variant="ghost" size="icon" className="h-7 w-7" asChild>
+                    <a href={app.app_url} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="w-3.5 h-3.5 text-muted-foreground" />
+                    </a>
+                  </Button>
+                )}
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(app)}>
+                  <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDelete(app.id)}>
+                  <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                </Button>
+              </div>
             </div>
-          </Link>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
