@@ -25,7 +25,7 @@ function hexToHsl(hex) {
   return \`\${Math.round(h*360)} \${Math.round(s*100)}% \${Math.round(l*100)}%\`;
 }
 
-function applyColors(primary_color, secondary_color) {
+function applyColors(primary_color, secondary_color, background_color) {
   const root = document.documentElement;
   if (primary_color) {
     const hsl = hexToHsl(primary_color);
@@ -46,6 +46,12 @@ function applyColors(primary_color, secondary_color) {
     root.style.setProperty('--sidebar-accent-foreground', '0 0% 0%');
     root.style.setProperty('--chart-2', hsl);
   }
+  if (background_color) {
+    const hsl = hexToHsl(background_color);
+    // Background color for the entire app
+    root.style.setProperty('--background', hsl);
+    root.style.setProperty('--card', hsl);
+  }
 }
 
 export function useBranding() {
@@ -53,8 +59,8 @@ export function useBranding() {
     const apply = () => {
       fetch(HUB_URL)
         .then(r => r.json())
-        .then(({ primary_color, secondary_color }) => {
-          applyColors(primary_color, secondary_color);
+        .then(({ primary_color, secondary_color, background_color }) => {
+          applyColors(primary_color, secondary_color, background_color);
         })
         .catch(() => {});
     };
@@ -63,7 +69,24 @@ export function useBranding() {
     const interval = setInterval(apply, 30000); // Re-check every 30s for live updates
     return () => clearInterval(interval);
   }, []);
-}`;
+}
+
+// OLD CODE - DELETE THIS IF YOU HAD IT:
+// export function useBranding() {
+//   useEffect(() => {
+//     const apply = () => {
+//       fetch(HUB_URL)
+//         .then(r => r.json())
+//         .then(({ primary_color, secondary_color }) => {
+//           applyColors(primary_color, secondary_color);
+//         })
+//         .catch(() => {});
+//     };
+//     apply();
+//     const interval = setInterval(apply, 30000);
+//     return () => clearInterval(interval);
+//   }, []);
+// }`;
 
 export default function BrandingIntegrationGuide() {
   const [copied, setCopied] = useState(false);
