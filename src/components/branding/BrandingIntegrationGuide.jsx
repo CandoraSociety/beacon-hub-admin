@@ -3,10 +3,12 @@ import { Copy, Check, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 const FUNCTION_URL = `https://beacon-92324875.base44.app/functions/getBranding`;
 
-const SNIPPET = `// Paste this in your app's main component (e.g. App.jsx or index.css hook)
-// It fetches brand colors from the Hub and applies them globally.
+const SNIPPET = `// 1. Save this file as src/lib/useBranding.js in your app
+// 2. Import and call useBranding() inside your top-level App component
 
 import { useEffect } from 'react';
+
+const HUB_URL = '${FUNCTION_URL}';
 
 function hexToHsl(hex) {
   let r = parseInt(hex.slice(1,3),16)/255;
@@ -23,24 +25,43 @@ function hexToHsl(hex) {
   return \`\${Math.round(h*360)} \${Math.round(s*100)}% \${Math.round(l*100)}%\`;
 }
 
+function applyColors(primary_color, secondary_color) {
+  const root = document.documentElement;
+  if (primary_color) {
+    const hsl = hexToHsl(primary_color);
+    // Core primary variables used by Base44 apps
+    root.style.setProperty('--primary', hsl);
+    root.style.setProperty('--primary-foreground', '0 0% 100%');
+    root.style.setProperty('--sidebar-primary', hsl);
+    root.style.setProperty('--sidebar-primary-foreground', '0 0% 100%');
+    root.style.setProperty('--ring', hsl);
+    root.style.setProperty('--chart-1', hsl);
+  }
+  if (secondary_color) {
+    const hsl = hexToHsl(secondary_color);
+    // Secondary maps to accent in Base44 apps
+    root.style.setProperty('--accent', hsl);
+    root.style.setProperty('--accent-foreground', '0 0% 0%');
+    root.style.setProperty('--sidebar-accent', hsl);
+    root.style.setProperty('--sidebar-accent-foreground', '0 0% 0%');
+    root.style.setProperty('--chart-2', hsl);
+  }
+}
+
 export function useBranding() {
   useEffect(() => {
-    fetch('${FUNCTION_URL}')
-      .then(r => r.json())
-      .then(({ primary_color, secondary_color }) => {
-        if (primary_color) {
-          const hsl = hexToHsl(primary_color);
-          document.documentElement.style.setProperty('--primary', hsl);
-          document.documentElement.style.setProperty('--sidebar-primary', hsl);
-          document.documentElement.style.setProperty('--ring', hsl);
-        }
-        if (secondary_color) {
-          const hsl = hexToHsl(secondary_color);
-          document.documentElement.style.setProperty('--accent', hsl);
-          document.documentElement.style.setProperty('--sidebar-accent', hsl);
-        }
-      })
-      .catch(() => {});
+    const apply = () => {
+      fetch(HUB_URL)
+        .then(r => r.json())
+        .then(({ primary_color, secondary_color }) => {
+          applyColors(primary_color, secondary_color);
+        })
+        .catch(() => {});
+    };
+
+    apply(); // Apply immediately on mount
+    const interval = setInterval(apply, 30000); // Re-check every 30s for live updates
+    return () => clearInterval(interval);
   }, []);
 }`;
 
