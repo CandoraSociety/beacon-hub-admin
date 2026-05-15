@@ -29,12 +29,12 @@ export default function Dashboard() {
 
   const { data: appRecords = [], isLoading: loadingApps } = useQuery({
     queryKey: ['appRegistry'],
-    queryFn: () => base44.entities.AppRegistry.list('-created_date', 100),
+    queryFn: () => base44.entities.AppRegistry.filter({}),
   });
 
   const { data: deptRecords = [], isLoading: loadingDepts } = useQuery({
     queryKey: ['departments'],
-    queryFn: () => base44.entities.Department.list('-created_date', 100),
+    queryFn: () => base44.entities.Department.filter({}),
   });
 
   const org = orgProfiles[0];
