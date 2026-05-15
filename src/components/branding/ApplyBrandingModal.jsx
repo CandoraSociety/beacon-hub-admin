@@ -10,26 +10,33 @@ export default function ApplyBrandingModal({ onClose }) {
   const [applying, setApplying] = useState(false);
   const [done, setDone] = useState(false);
 
+  const HUB_SELF_ID = '__hub__';
+
   const { data: apps = [], isLoading } = useQuery({
     queryKey: ['appRegistry', 'connected'],
     queryFn: async () => {
       const all = await base44.entities.AppRegistry.list();
       return all.filter(a => a.is_hub_connected && a.app_url);
     },
-    onSuccess: (data) => setSelected(data.map(a => a.id)),
   });
+
+  // Build full list including this Hub app itself
+  const allApps = [
+    { id: HUB_SELF_ID, app_name: 'This Hub (current app)', app_url: window.location.origin },
+    ...apps,
+  ];
 
   // Auto-select all on load
   useEffect(() => {
-    if (apps.length > 0 && selected.length === 0) {
-      setSelected(apps.map(a => a.id));
+    if (allApps.length > 0 && selected.length === 0) {
+      setSelected(allApps.map(a => a.id));
     }
   }, [apps]);
 
-  const allSelected = apps.length > 0 && selected.length === apps.length;
+  const allSelected = allApps.length > 0 && selected.length === allApps.length;
 
   const toggleAll = () => {
-    setSelected(allSelected ? [] : apps.map(a => a.id));
+    setSelected(allSelected ? [] : allApps.map(a => a.id));
   };
 
   const toggle = (id) => {
@@ -40,7 +47,9 @@ export default function ApplyBrandingModal({ onClose }) {
     if (selected.length === 0) return;
     setApplying(true);
     try {
-      await base44.functions.invoke('pushBranding', { app_ids: selected });
+      // Filter out the hub self-entry before sending to backend (it applies locally)
+      const remoteIds = selected.filter(id => id !== HUB_SELF_ID);
+      await base44.functions.invoke('pushBranding', { app_ids: remoteIds });
       setDone(true);
       toast.success('Branding push recorded — connected apps will update within 30 seconds.');
       setTimeout(onClose, 1800);
@@ -75,7 +84,7 @@ export default function ApplyBrandingModal({ onClose }) {
             <div className="flex items-center justify-center py-8">
               <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
             </div>
-          ) : apps.length === 0 ? (
+          ) : allApps.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-sm text-muted-foreground">No hub-connected apps found.</p>
               <p className="text-xs text-muted-foreground mt-1">Register apps in the App Registry and mark them as Hub Connected.</p>
@@ -91,14 +100,14 @@ export default function ApplyBrandingModal({ onClose }) {
                   ? <CheckSquare className="w-4 h-4 text-primary flex-shrink-0" />
                   : <Square className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                 }
-                Select All ({apps.length} app{apps.length !== 1 ? 's' : ''})
+                Select All ({allApps.length} app{allApps.length !== 1 ? 's' : ''})
               </button>
 
               <div className="border-t border-border my-2" />
 
               {/* App List */}
               <div className="space-y-1 max-h-48 overflow-y-auto">
-                {apps.map(app => (
+                {allApps.map(app => (
                   <button
                     key={app.id}
                     onClick={() => toggle(app.id)}
@@ -120,7 +129,7 @@ export default function ApplyBrandingModal({ onClose }) {
         </div>
 
         {/* Footer */}
-        {apps.length > 0 && (
+        {allApps.length > 0 && (
           <div className="flex gap-2 justify-end p-5 border-t border-border">
             <Button variant="outline" size="sm" onClick={onClose} disabled={applying}>
               Cancel

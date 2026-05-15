@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Palette, Building2, AppWindow, Rocket, Hexagon, ChevronLeft } from 'lucide-react';
+import { LayoutDashboard, Palette, Building2, AppWindow, Rocket, Hexagon, ChevronLeft, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { SidebarContext } from '@/lib/SidebarContext';
+import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 
 const navItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -16,6 +18,15 @@ const navItems = [
 export default function Sidebar() {
   const [currentPath, setCurrentPath] = useState('/');
   const { collapsed, setCollapsed } = useContext(SidebarContext);
+
+  const { data: connectedApps = [] } = useQuery({
+    queryKey: ['connectedApps'],
+    queryFn: async () => {
+      const all = await base44.entities.AppRegistry.list();
+      return all.filter(a => a.is_hub_connected && a.app_url && a.status === 'active');
+    },
+    staleTime: 60000,
+  });
 
   useEffect(() => {
     const updatePath = () => {
@@ -92,6 +103,42 @@ export default function Sidebar() {
           );
         })}
       </nav>
+
+      {/* Connected Apps */}
+      {connectedApps.length > 0 && (
+        <div className="px-3 pb-2">
+          <div className={cn("border-t border-border pt-3 mb-1", !collapsed && "")}>
+            {!collapsed && (
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-2">Connected Apps</p>
+            )}
+            <div className="space-y-1">
+              {connectedApps.map(app => (
+                <a
+                  key={app.id}
+                  href={app.app_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={app.app_name}
+                  className={cn(
+                    'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-secondary group',
+                    collapsed && 'px-0 justify-center'
+                  )}
+                >
+                  <div className="w-5 h-5 rounded bg-primary/20 flex items-center justify-center flex-shrink-0 text-[10px] font-bold text-primary uppercase">
+                    {app.app_name.charAt(0)}
+                  </div>
+                  {!collapsed && (
+                    <>
+                      <span className="truncate flex-1">{app.app_name}</span>
+                      <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-60 flex-shrink-0" />
+                    </>
+                  )}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <div className="p-4 border-t border-border">
