@@ -1,126 +1,123 @@
-import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
-import { AppWindow, Wifi, WifiOff, Pencil, Trash2, ExternalLink } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { toast } from 'sonner';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { AppRegistry, HubConfig, OrgProfile, Department } from '@/api/entities';
+import { Palette, Building2, AppWindow, Rocket, Wifi, ArrowRight, MessageCircle, X, Users, Bot } from 'lucide-react';
 import PageHeader from '@/components/shared/PageHeader';
-import AppEditDialog from '@/components/registry/AppEditDialog';
+import StatCard from '@/components/shared/StatCard';
 
-const statusStyles = {
-  active: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
-  inactive: 'bg-zinc-500/15 text-zinc-400 border-zinc-500/30',
-  development: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-  archived: 'bg-red-500/15 text-red-400 border-red-500/30',
-};
+const quickLinks = [
+  { path: '/branding', label: 'Branding Control', description: 'Manage colors & visual identity', icon: Palette },
+  { path: '/org-profile', label: 'Org Profile', description: 'Edit organization details', icon: Building2 },
+  { path: '/app-registry', label: 'App Registry', description: 'Manage connected applications', icon: AppWindow },
+  { path: '/new-app', label: 'Launch New App', description: 'Generate app starter prompt', icon: Rocket },
+];
 
-export default function AppRegistry() {
-  const queryClient = useQueryClient();
-  const [editingApp, setEditingApp] = useState(null);
+export default function Dashboard() {
+  const [chatOpen, setChatOpen] = useState(false);
+  const [org, setOrg] = useState(null);
+  const [stats, setStats] = useState({ total: 0, connected: 0, departments: 0, superagents: 0 });
+  const [loading, setLoading] = useState(true);
 
-  const { data: apps = [], isLoading } = useQuery({
-    queryKey: ['apps'],
-    queryFn: () => base44.entities.AppRegistry.list(),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.AppRegistry.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['apps'] });
-      toast.success('App deleted');
-    },
-  });
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [orgRecords, appRecords, deptRecords] = await Promise.all([
+          OrgProfile.list(),
+          AppRegistry.list(),
+          Department.list(),
+        ]);
+        setOrg(orgRecords[0] || null);
+        const nonAgents = appRecords.filter(r => r.audience !== 'Superagent');
+        setStats({
+          total: nonAgents.length,
+          connected: nonAgents.filter(r => r.is_hub_connected).length,
+          departments: deptRecords.length,
+          superagents: appRecords.filter(r => r.audience === 'Superagent').length,
+        });
+      } catch (e) {
+        console.error('Dashboard load error:', e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
 
   return (
-    <div>
-      <PageHeader
-        title="App Registry"
-        description="View and manage all registered applications in your hub."
-      />
-
-      {isLoading ? (
-        <div className="space-y-3">
-          {Array(4).fill(0).map((_, i) => <Skeleton key={i} className="h-16 rounded-xl" />)}
-        </div>
-      ) : apps.length === 0 ? (
-        <div className="bg-card border border-border rounded-xl p-16 text-center">
-          <AppWindow className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">No apps registered yet.</p>
-        </div>
-      ) : (
-        <div className="bg-card border border-border rounded-xl overflow-hidden">
-          {/* Table Header */}
-          <div className="grid grid-cols-12 gap-4 px-5 py-3 border-b border-border bg-muted/30 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            <div className="col-span-4">App</div>
-            <div className="col-span-2">Category</div>
-            <div className="col-span-2">Status</div>
-            <div className="col-span-2">Hub</div>
-            <div className="col-span-2 text-right">Actions</div>
-          </div>
-
-          {/* Table Rows */}
-          {apps.map((app) => (
-            <div key={app.id} className="grid grid-cols-12 gap-4 px-5 py-4 border-b border-border last:border-0 items-center hover:bg-muted/20 transition-colors">
-              <div className="col-span-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <AppWindow className="w-4 h-4 text-primary" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{app.app_name}</p>
-                    <p className="text-xs text-muted-foreground truncate">{app.app_description || '—'}</p>
-                  </div>
-                </div>
-              </div>
-              <div className="col-span-2">
-                <span className="text-xs text-muted-foreground capitalize">{app.app_category || '—'}</span>
-              </div>
-              <div className="col-span-2">
-                <Badge variant="outline" className={`text-[11px] ${statusStyles[app.status] || statusStyles.development}`}>
-                  {app.status || 'development'}
-                </Badge>
-              </div>
-              <div className="col-span-2">
-                {app.is_hub_connected ? (
-                  <div className="flex items-center gap-1.5 text-emerald-400">
-                    <Wifi className="w-3.5 h-3.5" />
-                    <span className="text-xs">Connected</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <WifiOff className="w-3.5 h-3.5" />
-                    <span className="text-xs">Disconnected</span>
-                  </div>
-                )}
-              </div>
-              <div className="col-span-2 flex justify-end gap-1.5">
-                {app.app_url && (
-                  <Button variant="ghost" size="icon" className="h-7 w-7" asChild>
-                    <a href={app.app_url} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="w-3.5 h-3.5 text-muted-foreground" />
-                    </a>
-                  </Button>
-                )}
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditingApp(app)}>
-                  <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => deleteMutation.mutate(app.id)}>
-                  <Trash2 className="w-3.5 h-3.5 text-destructive" />
-                </Button>
-              </div>
-            </div>
+    <div className="w-full">
+      <PageHeader title="Dashboard" description="Overview of your organization hub and connected applications." />
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
+          {Array(4).fill(0).map((_, i) => (
+            <div key={i} className="h-32 rounded-xl bg-muted animate-pulse" />
           ))}
         </div>
+      ) : (
+        <>
+          {org && (
+            <div className="bg-card border border-border rounded-xl p-6 mb-8">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center">
+                  <Building2 className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-foreground">{[org.org](https://org.org)_name}</h2>
+                  <p className="text-sm text-muted-foreground">{org.website || 'No website set'}</p>
+                </div>
+                <Link to="/org-profile" className="ml-auto text-xs text-primary hover:text-primary/80 flex items-center gap-1">
+                  Edit <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
+            </div>
+          )}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <StatCard label="Total Apps" value={stats.total} icon={AppWindow} />
+            <StatCard label="Hub Connected" value={stats.connected} subtitle={`${stats.total ? Math.round((stats.connected / stats.total) * 100) : 0}% of total`} icon={Wifi} />
+            <StatCard label="Departments" value={stats.departments} icon={Users} />
+            <StatCard label="Superagents" value={stats.superagents} icon={Bot} />
+          </div>
+        </>
       )}
-
-      {editingApp && (
-        <AppEditDialog
-          app={editingApp}
-          onClose={() => setEditingApp(null)}
-        />
+      <button onClick={() => setChatOpen(true)} className="w-full bg-[#005696] hover:bg-[#004175] text-white rounded-xl p-6 transition-all duration-300 mb-8 flex items-center gap-4 group">
+        <div className="w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center group-hover:bg-white/30 transition-colors flex-shrink-0">
+          <MessageCircle className="w-6 h-6 text-white" />
+        </div>
+        <div className="flex-1 text-left">
+          <h3 className="font-semibold text-white">Chat with Beacon</h3>
+          <p className="text-sm text-white/80">Get help with your hub and applications</p>
+        </div>
+        <ArrowRight className="w-5 h-5 text-white/80 group-hover:text-white transition-colors flex-shrink-0" />
+      </button>
+      {chatOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-card rounded-xl w-full max-w-2xl h-[80vh] flex flex-col border border-border">
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <h2 className="font-semibold text-foreground">Chat with Beacon</h2>
+              <button onClick={() => setChatOpen(false)} className="p-1 hover:bg-secondary rounded-lg transition-colors">
+                <X className="w-5 h-5 text-foreground" />
+              </button>
+            </div>
+            <iframe src="https://app.base44.com/superagent/6a056407a50c45c592324875" className="flex-1 w-full border-none rounded-b-lg" />
+          </div>
+        </div>
       )}
+      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Quick Access</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+        {quickLinks.map(({ path, label, description, icon: Icon }) => (
+          <Link key={path} to={path} className="bg-card border border-border rounded-xl p-5 hover:border-primary/40 transition-all duration-300 group min-w-0">
+            <div className="flex items-center gap-4 min-w-0">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors flex-shrink-0">
+                <Icon className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-sm font-semibold text-foreground truncate">{label}</h4>
+                <p className="text-xs text-muted-foreground mt-0.5 truncate">{description}</p>
+              </div>
+              <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+            </div>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }
