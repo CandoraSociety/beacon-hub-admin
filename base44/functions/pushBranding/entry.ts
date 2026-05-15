@@ -25,15 +25,36 @@ Deno.serve(async (req) => {
     const allApps = await base44.asServiceRole.entities.AppRegistry.filter({});
     const targetApps = allApps.filter(a => app_ids.includes(a.id));
 
-    // For each app, attempt to ping its branding endpoint if available
-    // Since satellite apps pull from this hub, we record a "last pushed" timestamp
-    // so apps can detect a new push and re-fetch
+    // For each app, try to hit their /functions/applyBranding endpoint if they have one,
+    // otherwise mark as "pending" (they will pick it up on their next 30s poll via useBranding)
     const results = [];
     for (const app of targetApps) {
+      let status = 'pending'; // satellite app will pick up on next poll
+      if (app.app_url) {
+        try {
+          // Derive the satellite app's base URL and attempt to call its applyBranding function
+          const baseUrl = app.app_url.replace(/\/$/, '');
+          // Extract the app slug from the URL (e.g. https://my-app-123.base44.app -> my-app-123)
+          const match = baseUrl.match(/https?:\/\/([^.]+)\.base44\.app/);
+          if (match) {
+            const slug = match[1];
+            const pingUrl = `https://${slug}.base44.app/functions/applyBranding`;
+            const resp = await fetch(pingUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(branding),
+              signal: AbortSignal.timeout(5000),
+            });
+            status = resp.ok ? 'notified' : 'pending';
+          }
+        } catch {
+          status = 'pending'; // couldn't reach, they'll poll
+        }
+      }
       results.push({
         app_id: app.id,
         app_name: app.app_name,
-        status: 'pushed',
+        status,
         branding,
       });
     }

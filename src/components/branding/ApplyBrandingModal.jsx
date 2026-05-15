@@ -42,7 +42,7 @@ export default function ApplyBrandingModal({ onClose }) {
     try {
       await base44.functions.invoke('pushBranding', { app_ids: selected });
       setDone(true);
-      toast.success('Branding applied to selected apps!');
+      toast.success('Branding push recorded — connected apps will update within 30 seconds.');
       setTimeout(onClose, 1800);
     } catch {
       toast.error('Failed to push branding');
@@ -61,7 +61,7 @@ export default function ApplyBrandingModal({ onClose }) {
             </div>
             <div>
               <h2 className="text-sm font-semibold text-foreground">Apply Branding Changes</h2>
-              <p className="text-xs text-muted-foreground">Select apps to push the current branding to</p>
+              <p className="text-xs text-muted-foreground">Notify connected apps to pull the latest branding colors</p>
             </div>
           </div>
           <button onClick={onClose} className="p-1 hover:bg-secondary rounded-lg transition-colors">
