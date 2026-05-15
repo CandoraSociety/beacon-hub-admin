@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
-import { Palette, Building2, AppWindow, Rocket, Wifi, ArrowRight, MessageCircle, X, Users } from 'lucide-react';
+import { AppRegistry, OrgProfile, Department } from '@/api/entities';
+import { Palette, Building2, AppWindow, Rocket, Wifi, ArrowRight, MessageCircle, X, Users, Bot } from 'lucide-react';
 import PageHeader from '@/components/shared/PageHeader';
 import StatCard from '@/components/shared/StatCard';
-import { Skeleton } from '@/components/ui/skeleton';
 
 const quickLinks = [
   { path: '/branding', label: 'Branding Control', description: 'Manage colors & visual identity', icon: Palette },
@@ -16,47 +14,43 @@ const quickLinks = [
 
 export default function Dashboard() {
   const [chatOpen, setChatOpen] = useState(false);
+  const [org, setOrg] = useState(null);
+  const [stats, setStats] = useState({ total: 0, connected: 0, departments: 0, superagents: 0 });
+  const [loading, setLoading] = useState(true);
 
-  const { data: orgProfiles = [], isLoading: loadingOrg } = useQuery({
-    queryKey: ['orgProfiles'],
-    queryFn: () => base44.entities.OrgProfile.list(),
-  });
-
-  const { data: hubConfigs = [], isLoading: loadingConfigs } = useQuery({
-    queryKey: ['hubConfigs'],
-    queryFn: () => base44.entities.HubConfig.list(),
-  });
-
-  const { data: appRecords = [], isLoading: loadingApps } = useQuery({
-    queryKey: ['appRegistry'],
-    queryFn: () => base44.entities.AppRegistry.filter({}),
-  });
-
-  const { data: deptRecords = [], isLoading: loadingDepts } = useQuery({
-    queryKey: ['departments'],
-    queryFn: () => base44.entities.Department.filter({}),
-  });
-
-  const org = orgProfiles[0];
-  const stats = {
-    total: appRecords.length,
-    connected: appRecords.filter(r => r.is_hub_connected).length,
-    departments: deptRecords.length,
-  };
-  const isLoading = loadingOrg || loadingConfigs || loadingApps || loadingDepts;
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [orgRecords, appRecords, deptRecords] = await Promise.all([
+          OrgProfile.list(),
+          AppRegistry.list(),
+          Department.list(),
+        ]);
+        setOrg(orgRecords[0] || null);
+        const nonAgents = appRecords.filter(r => r.audience !== 'Superagent');
+        setStats({
+          total: nonAgents.length,
+          connected: nonAgents.filter(r => r.is_hub_connected).length,
+          departments: deptRecords.length,
+          superagents: appRecords.filter(r => r.audience === 'Superagent').length,
+        });
+      } catch (e) {
+        console.error('Dashboard load error:', e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
 
   return (
     <div className="w-full">
-      <PageHeader
-        title="Dashboard"
-        description="Overview of your organization hub and connected applications."
-      />
+      <PageHeader title="Dashboard" description="Overview of your organization hub and connected applications." />
 
-      {/* Org Summary */}
-      {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
           {Array(4).fill(0).map((_, i) => (
-            <Skeleton key={i} className="h-32 rounded-xl" />
+            <div key={i} className="h-32 rounded-xl bg-muted animate-pulse" />
           ))}
         </div>
       ) : (
@@ -75,33 +69,23 @@ export default function Dashboard() {
                   <h2 className="text-lg font-semibold text-foreground">{org.org_name}</h2>
                   <p className="text-sm text-muted-foreground">{org.org_description || 'No description set'}</p>
                 </div>
-                <Link
-                  to="/org-profile"
-                  className="ml-auto text-xs text-primary hover:text-primary/80 flex items-center gap-1"
-                >
+                <Link to="/org-profile" className="ml-auto text-xs text-primary hover:text-primary/80 flex items-center gap-1">
                   Edit <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-            <StatCard
-              label="Total Apps"
-              value={stats.total}
-              icon={AppWindow}
-            />
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <StatCard label="Total Apps" value={stats.total} icon={AppWindow} />
             <StatCard
               label="Hub Connected"
               value={stats.connected}
               subtitle={`${stats.total ? Math.round((stats.connected / stats.total) * 100) : 0}% of total`}
               icon={Wifi}
             />
-            <StatCard
-              label="Departments"
-              value={stats.departments}
-              icon={Users}
-            />
+            <StatCard label="Departments" value={stats.departments} icon={Users} />
+            <StatCard label="Superagents" value={stats.superagents} icon={Bot} />
           </div>
         </>
       )}
@@ -121,23 +105,16 @@ export default function Dashboard() {
         <ArrowRight className="w-5 h-5 text-white/80 group-hover:text-white transition-colors flex-shrink-0" />
       </button>
 
-      {/* Chat Modal */}
       {chatOpen && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
           <div className="bg-card rounded-xl w-full max-w-2xl h-[80vh] flex flex-col border border-border">
             <div className="flex items-center justify-between p-4 border-b border-border">
               <h2 className="font-semibold text-foreground">Chat with Beacon</h2>
-              <button
-                onClick={() => setChatOpen(false)}
-                className="p-1 hover:bg-secondary rounded-lg transition-colors"
-              >
+              <button onClick={() => setChatOpen(false)} className="p-1 hover:bg-secondary rounded-lg transition-colors">
                 <X className="w-5 h-5 text-foreground" />
               </button>
             </div>
-            <iframe
-              src="https://app.base44.com/superagent/6a056407a50c45c592324875"
-              className="flex-1 w-full border-none rounded-b-lg"
-            />
+            <iframe src="https://app.base44.com/superagent/6a056407a50c45c592324875" className="flex-1 w-full border-none rounded-b-lg" />
           </div>
         </div>
       )}
@@ -146,11 +123,7 @@ export default function Dashboard() {
       <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Quick Access</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
         {quickLinks.map(({ path, label, description, icon: Icon }) => (
-          <Link
-            key={path}
-            to={path}
-            className="bg-card border border-border rounded-xl p-5 hover:border-primary/40 transition-all duration-300 group min-w-0"
-          >
+          <Link key={path} to={path} className="bg-card border border-border rounded-xl p-5 hover:border-primary/40 transition-all duration-300 group min-w-0">
             <div className="flex items-center gap-4 min-w-0">
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors flex-shrink-0">
                 <Icon className="w-5 h-5 text-primary" />
