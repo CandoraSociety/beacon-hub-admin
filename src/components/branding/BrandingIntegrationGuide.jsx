@@ -1,14 +1,26 @@
 import React, { useState } from 'react';
 import { Copy, Check, Zap } from 'lucide-react';
 import { toast } from 'sonner';
-const FUNCTION_URL = `https://beacon-92324875.base44.app/functions/getBranding`;
-
 const SNIPPET = `// 1. Save this file as src/lib/useBranding.js in your app
 // 2. Import and call useBranding() inside your top-level App component
 
 import { useEffect } from 'react';
 
-const HUB_URL = '${FUNCTION_URL}';
+// Dynamically construct the hub URL from the app's own domain
+function getHubURL() {
+  // In preview: https://app.base44.com/apps/{appId}/...
+  // When published: https://beacon-hub.base44.app/...
+  const isPreview = window.location.hostname === 'app.base44.com';
+  if (isPreview) {
+    const match = window.location.pathname.match(/\/apps\/([^/]+)/);
+    const hubAppId = '6a0579406ece0b16681e91b7'; // Beacon Hub's app ID
+    return \`https://app.base44.com/apps/\${hubAppId}/editor/preview/functions/getBranding\`;
+  }
+  // When published, construct from the published domain
+  return \`https://beacon-hub.base44.app/functions/getBranding\`;
+}
+
+const HUB_URL = getHubURL();
 
 function hexToHsl(hex) {
   let r = parseInt(hex.slice(1,3),16)/255;
@@ -105,7 +117,7 @@ export default function BrandingIntegrationGuide() {
       </div>
       <div className="flex-1 min-w-0">
         <h3 className="text-sm font-semibold text-foreground">Connect an App to This Hub</h3>
-        <p className="text-xs text-muted-foreground mt-0.5">Copy the branding hook and paste it into any other Base44 app — it will automatically pull colors from here.</p>
+        <p className="text-xs text-muted-foreground mt-0.5">Copy the branding hook and paste it into any other Base44 app. It automatically detects whether it's running in preview or published and fetches colors accordingly.</p>
       </div>
       <button
         onClick={copy}
