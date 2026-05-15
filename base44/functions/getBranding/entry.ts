@@ -1,16 +1,24 @@
-Deno.serve(async () => {
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+
+Deno.serve(async (req) => {
   try {
-    const response = await fetch('https://beacon-92324875.base44.app/functions/getHubConfig');
-    const data = await response.json();
-    
+    const base44 = createClientFromRequest(req);
+    const configs = await base44.asServiceRole.entities.HubConfig.filter({ category: 'branding' });
+
+    const get = (key) => configs.find(c => c.key === key)?.value || null;
+
     return Response.json({
-      primary_color: data.brand_primary_color || '#005696',
-      secondary_color: data.brand_secondary_color || '#FFD100',
+      primary_color: get('brand_primary_color') || '#005696',
+      secondary_color: get('brand_secondary_color') || '#FFD100',
+      font_family: get('brand_font_family') || null,
+      logo_url: get('brand_logo_url') || null,
     });
   } catch (error) {
     return Response.json({
       primary_color: '#005696',
       secondary_color: '#FFD100',
+      font_family: null,
+      logo_url: null,
     });
   }
 });

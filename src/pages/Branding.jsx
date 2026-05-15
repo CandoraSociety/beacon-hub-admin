@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import PageHeader from '@/components/shared/PageHeader';
 import ColorSwatch from '@/components/shared/ColorSwatch';
 import BrandPreview from '@/components/branding/BrandPreview';
+import BrandingIntegrationGuide from '@/components/branding/BrandingIntegrationGuide';
 
 export default function Branding() {
   const queryClient = useQueryClient();
@@ -81,6 +82,8 @@ export default function Branding() {
       {(primaryColor || secondaryColor) && (
         <BrandPreview primary={primaryColor} secondary={secondaryColor} />
       )}
+
+      <BrandingIntegrationGuide />
 
       {/* Config List */}
       <div className="space-y-3 mt-6">
