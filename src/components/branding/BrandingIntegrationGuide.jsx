@@ -46,32 +46,21 @@ export default function BrandingIntegrationGuide() {
   }
 
   return (
-    <div className="bg-card border border-border rounded-xl p-6 mt-6">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-9 h-9 rounded-lg bg-emerald-500/15 flex items-center justify-center">
-          <Zap className="w-4 h-4 text-emerald-400" />
-        </div>
-        <div>
-          <h3 className="text-sm font-semibold text-foreground">Connect an App to This Hub</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">Paste this hook into any Base44 app to make it pull branding from here automatically.</p>
-        </div>
+    <div className="bg-card border border-border rounded-xl p-5 mt-6 flex items-center gap-4">
+      <div className="w-9 h-9 rounded-lg bg-emerald-500/15 flex items-center justify-center flex-shrink-0">
+        <Zap className="w-4 h-4 text-emerald-400" />
       </div>
-
-      <div className="relative">
-        <pre className="bg-muted rounded-lg p-4 text-xs text-muted-foreground overflow-x-auto leading-relaxed font-mono whitespace-pre-wrap">
-          {SNIPPET}
-        </pre>
-        <button
-          onClick={copy}
-          className="absolute top-3 right-3 p-1.5 bg-secondary hover:bg-secondary/80 rounded-md transition-colors"
-        >
-          {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-muted-foreground" />}
-        </button>
+      <div className="flex-1 min-w-0">
+        <h3 className="text-sm font-semibold text-foreground">Connect an App to This Hub</h3>
+        <p className="text-xs text-muted-foreground mt-0.5">Copy the branding hook and paste it into any other Base44 app — it will automatically pull colors from here.</p>
       </div>
-
-      <p className="text-xs text-muted-foreground mt-3">
-        Then call <code className="font-mono text-primary/80 bg-primary/10 px-1 rounded">useBranding()</code> inside your app's root component. That's it — the app will now reflect any color changes you make here.
-      </p>
+      <button
+        onClick={copy}
+        className="flex items-center gap-2 px-3 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-xs font-medium transition-colors flex-shrink-0"
+      >
+        {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+        {copied ? 'Copied!' : 'Copy Hook'}
+      </button>
     </div>
   );
 }
