@@ -36,11 +36,19 @@ export function applyBrandingColors(primary_color, secondary_color) {
 
 export function useBranding() {
   useEffect(() => {
-    base44.functions.invoke('getBranding', {})
-      .then(response => {
-        const { primary_color, secondary_color } = response.data;
-        applyBrandingColors(primary_color, secondary_color);
-      })
-      .catch(() => {});
+    const apply = () => {
+      base44.functions.invoke('getBranding', {})
+        .then(response => {
+          const { primary_color, secondary_color } = response.data;
+          applyBrandingColors(primary_color, secondary_color);
+        })
+        .catch(() => {});
+    };
+
+    apply();
+
+    // Re-fetch every 30s to pick up pushed changes
+    const interval = setInterval(apply, 30000);
+    return () => clearInterval(interval);
   }, []);
 }

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Palette, Save, Plus, Trash2 } from 'lucide-react';
+import { Palette, Save, Plus, Trash2, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,12 +13,14 @@ import ColorSwatch from '@/components/shared/ColorSwatch';
 import BrandPreview from '@/components/branding/BrandPreview';
 import BrandingIntegrationGuide from '@/components/branding/BrandingIntegrationGuide';
 import { applyBrandingColors } from '@/lib/useBranding';
+import ApplyBrandingModal from '@/components/branding/ApplyBrandingModal';
 
 export default function Branding() {
   const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [newConfig, setNewConfig] = useState(null);
+  const [showApplyModal, setShowApplyModal] = useState(false);
 
   const { data: configs = [], isLoading } = useQuery({
     queryKey: ['hubConfigs', 'branding'],
@@ -80,12 +82,18 @@ export default function Branding() {
         title="Branding Control Panel"
         description="Manage your organization's visual identity. Changes here propagate to all connected apps."
         actions={
-          <Button
-            size="sm"
-            onClick={() => setNewConfig({ key: '', value: '', description: '', category: 'branding' })}
-          >
-            <Plus className="w-4 h-4 mr-1.5" /> Add Config
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setNewConfig({ key: '', value: '', description: '', category: 'branding' })}
+            >
+              <Plus className="w-4 h-4 mr-1.5" /> Add Config
+            </Button>
+            <Button size="sm" onClick={() => setShowApplyModal(true)}>
+              <Zap className="w-4 h-4 mr-1.5" /> Apply Changes
+            </Button>
+          </div>
         }
       />
 
@@ -225,6 +233,7 @@ export default function Branding() {
           </div>
         )}
       </div>
+      {showApplyModal && <ApplyBrandingModal onClose={() => setShowApplyModal(false)} />}
     </div>
   );
 }
