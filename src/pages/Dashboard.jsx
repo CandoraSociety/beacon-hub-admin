@@ -20,8 +20,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     Promise.all([
-      base44.entities.AppRegistry.list({ limit: 100 }),
-      base44.entities.Department.list({ limit: 100 }),
+      base44.entities.AppRegistry.list('-created_date', 100),
+      base44.entities.Department.list('-created_date', 100),
     ]).then(([appRecords, deptRecords]) => {
       setStats({
         total: appRecords.length,
