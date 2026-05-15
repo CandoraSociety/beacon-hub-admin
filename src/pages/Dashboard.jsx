@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
@@ -16,20 +16,6 @@ const quickLinks = [
 
 export default function Dashboard() {
   const [chatOpen, setChatOpen] = useState(false);
-  const [stats, setStats] = useState({ total: 0, connected: 0, departments: 0 });
-
-  useEffect(() => {
-    Promise.all([
-      base44.entities.AppRegistry.list('-created_date', 100),
-      base44.entities.Department.list('-created_date', 100),
-    ]).then(([appRecords, deptRecords]) => {
-      setStats({
-        total: appRecords.length,
-        connected: appRecords.filter(r => r.is_hub_connected).length,
-        departments: deptRecords.length,
-      });
-    });
-  }, []);
 
   const { data: orgProfiles = [], isLoading: loadingOrg } = useQuery({
     queryKey: ['orgProfiles'],
@@ -41,8 +27,23 @@ export default function Dashboard() {
     queryFn: () => base44.entities.HubConfig.list(),
   });
 
+  const { data: appRecords = [], isLoading: loadingApps } = useQuery({
+    queryKey: ['appRegistry'],
+    queryFn: () => base44.entities.AppRegistry.list('-created_date', 100),
+  });
+
+  const { data: deptRecords = [], isLoading: loadingDepts } = useQuery({
+    queryKey: ['departments'],
+    queryFn: () => base44.entities.Department.list('-created_date', 100),
+  });
+
   const org = orgProfiles[0];
-  const isLoading = loadingOrg || loadingConfigs;
+  const stats = {
+    total: appRecords.length,
+    connected: appRecords.filter(r => r.is_hub_connected).length,
+    departments: deptRecords.length,
+  };
+  const isLoading = loadingOrg || loadingConfigs || loadingApps || loadingDepts;
 
   return (
     <div className="w-full">
