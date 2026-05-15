@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { LayoutDashboard, Palette, Building2, AppWindow, Rocket, Wifi, Bot, ArrowRight, MessageCircle, X } from 'lucide-react';
+import { Palette, Building2, AppWindow, Rocket, Wifi, ArrowRight, MessageCircle, X, Users } from 'lucide-react';
 import PageHeader from '@/components/shared/PageHeader';
 import StatCard from '@/components/shared/StatCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -16,15 +16,17 @@ const quickLinks = [
 
 export default function Dashboard() {
   const [chatOpen, setChatOpen] = useState(false);
-  const [stats, setStats] = useState({ total: 0, connected: 0, superagents: 0 });
+  const [stats, setStats] = useState({ total: 0, connected: 0, departments: 0 });
 
   useEffect(() => {
-    base44.entities.AppRegistry.list({ limit: 100 }).then(records => {
-      const apps = records.filter(r => r.audience !== 'Superagent');
+    Promise.all([
+      base44.entities.AppRegistry.list({ limit: 100 }),
+      base44.entities.Department.list({ limit: 100 }),
+    ]).then(([appRecords, deptRecords]) => {
       setStats({
-        total: apps.length,
-        connected: apps.filter(r => r.is_hub_connected).length,
-        superagents: records.filter(r => r.audience === 'Superagent').length
+        total: appRecords.length,
+        connected: appRecords.filter(r => r.is_hub_connected).length,
+        departments: deptRecords.length,
       });
     });
   }, []);
@@ -40,7 +42,6 @@ export default function Dashboard() {
   });
 
   const org = orgProfiles[0];
-  const brandingConfigs = hubConfigs.filter(c => c.category === 'branding');
   const isLoading = loadingOrg || loadingConfigs;
 
   return (
@@ -83,27 +84,22 @@ export default function Dashboard() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
             <StatCard
               label="Total Apps"
               value={stats.total}
               icon={AppWindow}
             />
             <StatCard
-              label="Connected"
+              label="Hub Connected"
               value={stats.connected}
               subtitle={`${stats.total ? Math.round((stats.connected / stats.total) * 100) : 0}% of total`}
               icon={Wifi}
             />
             <StatCard
-              label="Superagents"
-              value={stats.superagents}
-              icon={Bot}
-            />
-            <StatCard
-              label="Branding Configs"
-              value={brandingConfigs.length}
-              icon={Palette}
+              label="Departments"
+              value={stats.departments}
+              icon={Users}
             />
           </div>
         </>

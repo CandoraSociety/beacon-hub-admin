@@ -1,0 +1,17 @@
+{
+  "name": "Department",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Department name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Short description of the department"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}
