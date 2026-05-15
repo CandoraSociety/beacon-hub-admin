@@ -6,7 +6,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import SidebarProvider from '@/lib/SidebarContext';
-import { useBranding } from '@/lib/useBranding';
+import { useBranding } from '@/hooks/useBranding';
 
 import AdminLayout from '@/components/layout/AdminLayout';
 import Dashboard from '@/pages/Dashboard';
