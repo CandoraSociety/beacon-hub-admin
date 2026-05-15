@@ -73,6 +73,7 @@ export default function Branding() {
 
   const primaryColor = configs.find(c => c.key === 'brand_primary_color')?.value;
   const secondaryColor = configs.find(c => c.key === 'brand_secondary_color')?.value;
+  const backgroundColor = configs.find(c => c.key === 'brand_background_color')?.value;
 
   const isColorKey = (key) => key?.toLowerCase().includes('color');
 
@@ -96,6 +97,40 @@ export default function Branding() {
           </div>
         }
       />
+
+      {/* Quick Color Controls */}
+      <div className="grid grid-cols-3 gap-4 mt-6">
+        {[
+          { key: 'brand_primary_color', label: 'Primary Color', value: primaryColor },
+          { key: 'brand_secondary_color', label: 'Secondary Color', value: secondaryColor },
+          { key: 'brand_background_color', label: 'Background Color', value: backgroundColor },
+        ].map(({ key, label, value }) => (
+          <div key={key} className="bg-card border border-border rounded-xl p-4">
+            <Label className="text-xs text-muted-foreground">{label}</Label>
+            <div className="flex gap-2 mt-2 items-center">
+              <input
+                type="color"
+                value={value || '#000000'}
+                onChange={(e) => {
+                  const config = configs.find(c => c.key === key);
+                  if (config) {
+                    updateMutation.mutate({ id: config.id, data: { value: e.target.value } });
+                  } else {
+                    createMutation.mutate({
+                      key,
+                      value: e.target.value,
+                      description: label,
+                      category: 'branding',
+                    });
+                  }
+                }}
+                className="w-12 h-10 rounded-md border border-border cursor-pointer bg-transparent"
+              />
+              <span className="text-xs font-mono text-primary/80">{value || 'Not set'}</span>
+            </div>
+          </div>
+        ))}
+      </div>
 
       {/* Live Preview */}
       {(primaryColor || secondaryColor) && (
