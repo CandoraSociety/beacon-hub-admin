@@ -61,7 +61,7 @@ export default function Dashboard() {
                   <Building2 className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-foreground">{[org.org](https://org.org)_name}</h2>
+                  <h2 className="text-lg font-semibold text-foreground">{org.org_name}</h2>
                   <p className="text-sm text-muted-foreground">{org.website || 'No website set'}</p>
                 </div>
                 <Link to="/org-profile" className="ml-auto text-xs text-primary hover:text-primary/80 flex items-center gap-1">
