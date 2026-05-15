@@ -28,8 +28,17 @@ export function useBranding() {
     fetch('${FUNCTION_URL}')
       .then(r => r.json())
       .then(({ primary_color, secondary_color }) => {
-        if (primary_color) document.documentElement.style.setProperty('--primary', hexToHsl(primary_color));
-        if (secondary_color) document.documentElement.style.setProperty('--accent', hexToHsl(secondary_color));
+        if (primary_color) {
+          const hsl = hexToHsl(primary_color);
+          document.documentElement.style.setProperty('--primary', hsl);
+          document.documentElement.style.setProperty('--sidebar-primary', hsl);
+          document.documentElement.style.setProperty('--ring', hsl);
+        }
+        if (secondary_color) {
+          const hsl = hexToHsl(secondary_color);
+          document.documentElement.style.setProperty('--accent', hsl);
+          document.documentElement.style.setProperty('--sidebar-accent', hsl);
+        }
       })
       .catch(() => {});
   }, []);

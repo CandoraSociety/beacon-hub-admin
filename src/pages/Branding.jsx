@@ -12,6 +12,7 @@ import PageHeader from '@/components/shared/PageHeader';
 import ColorSwatch from '@/components/shared/ColorSwatch';
 import BrandPreview from '@/components/branding/BrandPreview';
 import BrandingIntegrationGuide from '@/components/branding/BrandingIntegrationGuide';
+import { applyBrandingColors } from '@/lib/useBranding';
 
 export default function Branding() {
   const queryClient = useQueryClient();
@@ -27,10 +28,18 @@ export default function Branding() {
     },
   });
 
+  const reapplyColors = (updatedConfigs) => {
+    const primary = updatedConfigs.find(c => c.key === 'brand_primary_color')?.value;
+    const secondary = updatedConfigs.find(c => c.key === 'brand_secondary_color')?.value;
+    applyBrandingColors(primary, secondary);
+  };
+
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.HubConfig.update(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['hubConfigs'] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['hubConfigs'] });
+      const all = await base44.entities.HubConfig.list();
+      reapplyColors(all.filter(c => c.category === 'branding'));
       setEditingId(null);
       toast.success('Config updated');
     },
@@ -38,8 +47,10 @@ export default function Branding() {
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.HubConfig.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['hubConfigs'] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['hubConfigs'] });
+      const all = await base44.entities.HubConfig.list();
+      reapplyColors(all.filter(c => c.category === 'branding'));
       setNewConfig(null);
       toast.success('Config created');
     },
