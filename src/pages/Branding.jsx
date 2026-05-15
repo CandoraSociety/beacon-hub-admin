@@ -33,7 +33,8 @@ export default function Branding() {
   const reapplyColors = (updatedConfigs) => {
     const primary = updatedConfigs.find(c => c.key === 'brand_primary_color')?.value;
     const secondary = updatedConfigs.find(c => c.key === 'brand_secondary_color')?.value;
-    applyBrandingColors(primary, secondary);
+    const background = updatedConfigs.find(c => c.key === 'brand_background_color')?.value;
+    applyBrandingColors(primary, secondary, background);
   };
 
   const updateMutation = useMutation({

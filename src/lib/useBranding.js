@@ -20,7 +20,7 @@ function hexToHsl(hex) {
   return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
 }
 
-export function applyBrandingColors(primary_color, secondary_color) {
+export function applyBrandingColors(primary_color, secondary_color, background_color) {
   if (primary_color) {
     const hsl = hexToHsl(primary_color);
     document.documentElement.style.setProperty('--primary', hsl);
@@ -32,6 +32,11 @@ export function applyBrandingColors(primary_color, secondary_color) {
     document.documentElement.style.setProperty('--accent', hsl);
     document.documentElement.style.setProperty('--sidebar-accent', hsl);
   }
+  if (background_color) {
+    const hsl = hexToHsl(background_color);
+    document.documentElement.style.setProperty('--background', hsl);
+    document.documentElement.style.setProperty('--card', hsl);
+  }
 }
 
 export function useBranding() {
@@ -39,8 +44,8 @@ export function useBranding() {
     const apply = () => {
       base44.functions.invoke('getBranding', {})
         .then(response => {
-          const { primary_color, secondary_color } = response.data;
-          applyBrandingColors(primary_color, secondary_color);
+          const { primary_color, secondary_color, background_color } = response.data;
+          applyBrandingColors(primary_color, secondary_color, background_color);
         })
         .catch(() => {});
     };

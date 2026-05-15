@@ -21,6 +21,7 @@ Deno.serve(async (req) => {
     return Response.json({
       primary_color: get('brand_primary_color') || '#005696',
       secondary_color: get('brand_secondary_color') || '#FFD100',
+      background_color: get('brand_background_color') || null,
       font_family: get('brand_font_family') || null,
       logo_url: get('brand_logo_url') || null,
     }, { headers: CORS_HEADERS });
@@ -28,6 +29,7 @@ Deno.serve(async (req) => {
     return Response.json({
       primary_color: '#005696',
       secondary_color: '#FFD100',
+      background_color: null,
       font_family: null,
       logo_url: null,
     }, { headers: CORS_HEADERS });
