@@ -15,6 +15,7 @@ import OrgProfile from '@/pages/OrgProfile';
 import AppRegistry from '@/pages/AppRegistry';
 import NewAppLauncher from '@/pages/NewAppLauncher';
 import Permissions from '@/pages/Permissions';
+import PendingTasks from '@/pages/PendingTasks';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -46,6 +47,7 @@ const AuthenticatedApp = () => {
         <Route path="/app-registry" element={<AppRegistry />} />
         <Route path="/new-app" element={<NewAppLauncher />} />
         <Route path="/permissions" element={<Permissions />} />
+        <Route path="/pending-tasks" element={<PendingTasks />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

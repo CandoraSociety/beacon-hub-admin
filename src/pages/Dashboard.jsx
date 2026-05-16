@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { AppRegistry, OrgProfile, UserAccessLevel } from '@/api/entities';
@@ -17,6 +17,7 @@ const quickLinks = [
 ];
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [chatOpen, setChatOpen] = useState(false);
   const [org, setOrg] = useState(null);
   const [stats, setStats] = useState({ total: 0, connected: 0, accessLevels: 0, superagents: 0 });
@@ -157,7 +158,10 @@ export default function Dashboard() {
 
       {/* Pending Tasks */}
       {pendingTasks.length > 0 && (
-        <div className="bg-card border border-white/5 rounded-xl p-6 mb-8 shadow-md shadow-black/20">
+        <button
+          onClick={() => navigate('/pending-tasks')}
+          className="w-full bg-card border border-white/5 rounded-xl p-6 mb-8 shadow-md shadow-black/20 hover:border-white/10 hover:shadow-lg hover:shadow-black/30 hover:brightness-110 transition-all duration-200 text-left"
+        >
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-destructive/20 flex items-center justify-center">
@@ -165,6 +169,7 @@ export default function Dashboard() {
               </div>
               <h3 className="text-sm font-semibold text-foreground">Pending Tasks ({pendingTasks.length})</h3>
             </div>
+            <ArrowRight className="w-4 h-4 text-muted-foreground" />
           </div>
           <div className="space-y-2 max-h-48 overflow-y-auto">
             {pendingTasks.slice(0, 5).map((task) => (
@@ -182,7 +187,7 @@ export default function Dashboard() {
           {pendingTasks.length > 5 && (
             <p className="text-xs text-muted-foreground mt-3">+{pendingTasks.length - 5} more</p>
           )}
-        </div>
+        </button>
       )}
 
       {/* System Audit */}
