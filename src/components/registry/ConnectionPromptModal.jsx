@@ -5,23 +5,16 @@ import { toast } from 'sonner';
 
 function generatePrompt(app) {
   const appName = app.app_name || 'this app';
-  const description = app.app_description ? `\n\nThis app is described as: "${app.app_description}".` : '';
-  const audience = app.audience ? ` It serves the following audience: ${app.audience}.` : '';
-  const hubUrl = 'https://beacon-nexus-core.base44.app';
 
-  return `Hi ${appName} — I need you to connect this app to our central Beacon Nexus Core hub.
+  return `Hi ${appName} — I need you to connect to Beacon Nexus Core, our central branding hub.
 
-Beacon Nexus Core is our organization's central command hub that manages unified configurations and policies across all our Base44 applications. By connecting ${appName} to the hub, it will be able to receive and sync live updates from central commands, including branding changes, configuration updates, and other organizational directives — ensuring consistency across all our apps.
-
-Here's what needs to be done:
+Here's what you need to do:
 
 ---
 
-**STEP 1 — Create a \`useBranding\` hook**
+**STEP 1 — Create \`hooks/useBranding.js\`**
 
-Create a new file at \`hooks/useBranding.js\` with the following code:
-
-\`\`\`js
+\`\`\`javascript
 import { useEffect } from 'react';
 
 function hexToHsl(hex) {
@@ -43,39 +36,31 @@ function hexToHsl(hex) {
   return \`\${Math.round(h * 360)} \${Math.round(s * 100)}% \${Math.round(l * 100)}%\`;
 }
 
-export function applyBrandingColors(primary, secondary, background) {
-  const root = document.documentElement;
-  if (primary) {
-    const hsl = hexToHsl(primary);
-    if (hsl) root.style.setProperty('--primary', hsl);
-  }
-  if (secondary) {
-    const hsl = hexToHsl(secondary);
-    if (hsl) root.style.setProperty('--accent', hsl);
-  }
-  if (background) {
-    const hsl = hexToHsl(background);
-    if (hsl) root.style.setProperty('--background', hsl);
-  }
-}
-
 export function useBranding() {
   useEffect(() => {
-    async function fetchAndApply() {
+    const fetchAndApply = async () => {
       try {
-        const hubUrl = '${hubUrl}';
-        const res = await fetch(\`\${hubUrl}/functions/getBranding\`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({}),
-        });
-        if (!res.ok) return;
-        const data = await res.json();
-        applyBrandingColors(data.primary_color, data.secondary_color, data.background_color);
+        const res = await fetch('https://beacon-nexus-core.base44.app/functions/getBranding');
+        const { primary_color, secondary_color, background_color } = await res.json();
+
+        const root = document.documentElement;
+        if (primary_color) {
+          const hsl = hexToHsl(primary_color);
+          root.style.setProperty('--primary', hsl);
+        }
+        if (secondary_color) {
+          const hsl = hexToHsl(secondary_color);
+          root.style.setProperty('--accent', hsl);
+        }
+        if (background_color) {
+          const hsl = hexToHsl(background_color);
+          root.style.setProperty('--background', hsl);
+        }
       } catch (e) {
-        // Hub unreachable — use local defaults
+        // Silently fail if Beacon is unreachable
       }
-    }
+    };
+
     fetchAndApply();
     const interval = setInterval(fetchAndApply, 30000);
     return () => clearInterval(interval);
@@ -85,30 +70,28 @@ export function useBranding() {
 
 ---
 
-**STEP 2 — Call the hook in your app entry point**
+**STEP 2 — Call the hook in your AuthenticatedApp**
 
-Open your \`App.jsx\` (or wherever your root component lives). Import and call the hook near the top of your main authenticated component:
+Add this to your \`App.jsx\` (or authenticated root component):
 
-\`\`\`js
+\`\`\`javascript
 import { useBranding } from '@/hooks/useBranding';
 
-// Inside your root component or AuthenticatedApp:
+// Inside your authenticated component:
 useBranding();
 \`\`\`
 
 ---
 
-**STEP 3 — Register this app in the hub**
+**STEP 3 — Register in the hub**
 
-Go back to the Beacon Nexus Core hub, open the **App Registry**, and make sure **${appName}** is registered with:
+Go to Beacon Nexus Core's **App Registry** and ensure **${appName}** is registered with:
 - **Hub Connected** checked ✓
-- The correct **App URL** filled in (so the hub can push branding to it)
+- Correct **App URL** filled in
 
 ---
 
-That's it. Once these steps are complete, **${appName}** will automatically receive branding updates (colors, theme) from Beacon Nexus Core every 30 seconds and whenever a push is triggered from the hub's Branding Control Panel.${description}${audience}
-
-If you run into any issues during setup, check that the hub URL in the hook matches the published URL of the Beacon Nexus Core app exactly.`;
+That's it. ${appName} will now automatically receive branding updates from Beacon every 30 seconds.`;
 }
 
 export default function ConnectionPromptModal({ app, onClose, isPostSave = false }) {
