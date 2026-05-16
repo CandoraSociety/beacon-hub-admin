@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { AppRegistry, OrgProfile, Department } from '@/api/entities';
+import { AppRegistry, OrgProfile, UserAccessLevel } from '@/api/entities';
 import { Palette, Building2, AppWindow, Rocket, Wifi, ArrowRight, MessageCircle, X, Users, Bot } from 'lucide-react';
 import PageHeader from '@/components/shared/PageHeader';
 import StatCard from '@/components/shared/StatCard';
@@ -15,23 +15,23 @@ const quickLinks = [
 export default function Dashboard() {
   const [chatOpen, setChatOpen] = useState(false);
   const [org, setOrg] = useState(null);
-  const [stats, setStats] = useState({ total: 0, connected: 0, departments: 0, superagents: 0 });
+  const [stats, setStats] = useState({ total: 0, connected: 0, accessLevels: 0, superagents: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [orgRecords, appRecords, deptRecords] = await Promise.all([
+        const [orgRecords, appRecords, accessLevelRecords] = await Promise.all([
           OrgProfile.list(),
           AppRegistry.list(),
-          Department.list(),
+          UserAccessLevel.list(),
         ]);
         setOrg(orgRecords[0] || null);
         const nonAgents = appRecords.filter(r => r.audience !== 'Superagent');
         setStats({
           total: nonAgents.length,
           connected: nonAgents.filter(r => r.is_hub_connected).length,
-          departments: deptRecords.length,
+          accessLevels: accessLevelRecords.length,
           superagents: appRecords.filter(r => r.audience === 'Superagent').length,
         });
       } catch (e) {
@@ -84,7 +84,7 @@ export default function Dashboard() {
               subtitle={`${stats.total ? Math.round((stats.connected / stats.total) * 100) : 0}% of total`}
               icon={Wifi}
             />
-            <StatCard label="Departments" value={stats.departments} icon={Users} />
+            <StatCard label="Access Levels" value={stats.accessLevels} icon={Users} />
             <StatCard label="Superagents" value={stats.superagents} icon={Bot} />
           </div>
         </>

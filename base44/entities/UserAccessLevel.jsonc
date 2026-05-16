@@ -1,0 +1,38 @@
+{
+  "name": "UserAccessLevel",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the access level cluster (e.g., 'Manager', 'Employee', 'Viewer')"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of what this access level includes"
+    },
+    "app_restrictions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of app IDs this access level can access"
+    },
+    "page_restrictions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of pages/features this access level can view"
+    },
+    "individual_permissions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of granular permissions that can be individually overridden"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}
