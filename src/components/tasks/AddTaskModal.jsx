@@ -83,18 +83,6 @@ export default function AddTaskModal({ open, onOpenChange, onTaskAdded }) {
     setShowAddCategoryDialog(true);
   };
 
-  const handleAddNewCategory = async (addToDisplay) => {
-    if (addToDisplay) {
-      setFormData({ ...formData, app: customAppName });
-    } else {
-      setFormData({ ...formData, app: 'Other' });
-    }
-    setShowCustomAppInput(false);
-    setCustomAppName('');
-    setShowAddCategoryDialog(false);
-    toast.success(`App set to "${addToDisplay ? customAppName : 'Other'}"`);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title.trim() || !formData.app.trim()) {
@@ -102,9 +90,47 @@ export default function AddTaskModal({ open, onOpenChange, onTaskAdded }) {
       return;
     }
 
+    // If custom app was entered, show dialog before submitting
+    if (showCustomAppInput && customAppName.trim()) {
+      setShowAddCategoryDialog(true);
+      return;
+    }
+
     setLoading(true);
     try {
       await base44.entities.PendingTask.create(formData);
+      toast.success('Task created successfully');
+      setFormData({
+        title: '',
+        description: '',
+        app: '',
+        status: 'pending',
+        priority: 'medium',
+        category: 'feature',
+        blocked_by: '',
+      });
+      setShowCustomAppInput(false);
+      setCustomAppName('');
+      onOpenChange(false);
+      if (onTaskAdded) onTaskAdded();
+    } catch (error) {
+      toast.error('Failed to create task: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddNewCategory = async (addToDisplay) => {
+    const finalApp = addToDisplay ? customAppName : 'Other';
+    setFormData({ ...formData, app: finalApp });
+    setShowCustomAppInput(false);
+    setCustomAppName('');
+    setShowAddCategoryDialog(false);
+
+    // Now submit the task
+    setLoading(true);
+    try {
+      await base44.entities.PendingTask.create({ ...formData, app: finalApp });
       toast.success('Task created successfully');
       setFormData({
         title: '',
