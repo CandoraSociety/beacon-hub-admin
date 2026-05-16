@@ -114,9 +114,18 @@ export default function AppRegistryPage() {
               <Label className="text-xs">App Name *</Label>
               <Input className="mt-1" placeholder="e.g. CRM App" value={form.app_name} onChange={e => setForm({ ...form, app_name: e.target.value })} />
             </div>
-            <div>
-              <Label className="text-xs">App URL</Label>
-              <Input className="mt-1" placeholder="https://..." value={form.app_url} onChange={e => setForm({ ...form, app_url: e.target.value })} />
+            <div className="flex flex-col justify-end">
+              <Label className="text-xs mb-1">Hub Connection Setup</Label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="border-accent/40 text-accent hover:bg-accent/10 hover:text-accent gap-2 w-full justify-start"
+                onClick={() => form.app_name.trim() ? setPromptApp(form) : toast.error('Enter an app name first')}
+              >
+                <Zap className="w-3.5 h-3.5" />
+                Get connection prompt — paste into your app's chat
+              </Button>
             </div>
             <div>
               <Label className="text-xs">Category</Label>
@@ -228,18 +237,6 @@ export default function AppRegistryPage() {
                 )}
               </div>
               <div className="col-span-2 flex justify-end gap-1.5">
-                <div className="flex flex-col items-end gap-0.5">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-7 px-2 text-accent hover:text-accent hover:bg-accent/10 gap-1"
-                    onClick={() => setPromptApp(app)}
-                  >
-                    <Zap className="w-3 h-3" />
-                    <span className="text-[11px] font-medium">Connect</span>
-                  </Button>
-                  <span className="text-[10px] text-muted-foreground leading-tight text-right">Copy setup prompt</span>
-                </div>
                 {app.app_url && (
                   <Button variant="ghost" size="icon" className="h-7 w-7" asChild>
                     <a href={app.app_url} target="_blank" rel="noopener noreferrer">
