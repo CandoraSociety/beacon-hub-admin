@@ -68,6 +68,7 @@ export default function AddTaskModal({ open, onOpenChange, onTaskAdded }) {
     if (value === 'other') {
       setShowCustomAppInput(true);
       setFormData({ ...formData, app: '' });
+      setCustomAppName('');
     } else {
       setShowCustomAppInput(false);
       setCustomAppName('');
@@ -81,7 +82,6 @@ export default function AddTaskModal({ open, onOpenChange, onTaskAdded }) {
       return;
     }
     setFormData({ ...formData, app: customAppName });
-    setShowCustomAppInput(false);
   };
 
   const handleSubmit = async (e) => {
