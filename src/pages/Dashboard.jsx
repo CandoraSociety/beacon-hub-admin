@@ -6,7 +6,7 @@ import PageHeader from '@/components/shared/PageHeader';
 import StatCard from '@/components/shared/StatCard';
 
 const quickLinks = [
-  { path: '/branding', label: 'Branding Control', description: 'Manage colors & visual identity', icon: Palette },
+  { path: '/branding', label: 'Design', description: 'Manage colors & visual identity', icon: Palette },
   { path: '/org-profile', label: 'Org Profile', description: 'Edit organization details', icon: Building2 },
   { path: '/app-registry', label: 'App Registry', description: 'Manage connected applications', icon: AppWindow },
   { path: '/new-app', label: 'Launch New App', description: 'Generate app starter prompt', icon: Rocket },
