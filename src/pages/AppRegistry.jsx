@@ -197,10 +197,10 @@ export default function AppRegistryPage() {
         <div className="bg-card border border-white/5 rounded-xl overflow-hidden shadow-md shadow-black/20">
           <div className="grid grid-cols-12 gap-4 px-5 py-3 border-b border-white/5 bg-muted/30 text-xs font-medium text-muted-foreground uppercase tracking-wider">
             <div className="col-span-2">App</div>
-            <div className="col-span-2">Category</div>
+            <div className="col-span-1">Category</div>
             <div className="col-span-1">Status</div>
             <div className="col-span-1">Hub</div>
-            <div className="col-span-3">Connection Prompt</div>
+            <div className="col-span-4">Connection Prompt</div>
             <div className="col-span-3 text-right">Actions</div>
           </div>
           {apps.map((app) => (
@@ -216,7 +216,7 @@ export default function AppRegistryPage() {
                   </div>
                 </div>
               </div>
-              <div className="col-span-2">
+              <div className="col-span-1">
                 <span className="text-xs text-muted-foreground capitalize">{app.app_category || '—'}</span>
               </div>
               <div className="col-span-1">
@@ -241,7 +241,7 @@ export default function AppRegistryPage() {
                   </Button>
                 )}
               </div>
-              <div className="col-span-3">
+              <div className="col-span-4">
                 <Button
                   size="sm"
                   className="bg-accent text-accent-foreground hover:bg-accent/90 gap-1.5 text-[11px] h-7 px-2.5 truncate max-w-full"
