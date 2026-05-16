@@ -205,22 +205,25 @@ export default function Branding() {
                   <img src={headerLogoUrl} alt="Logo" className="w-full h-full object-cover" />
                 </div>
               )}
-              <label className="flex-1 px-4 py-2 border border-white/10 rounded-md hover:bg-white/5 transition-colors cursor-pointer flex items-center gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setCropperFile(file);
+                  }
+                }}
+                className="hidden"
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="flex-1 px-4 py-2 border border-white/10 rounded-md hover:bg-white/5 transition-colors cursor-pointer flex items-center gap-2"
+              >
                 <Upload className="w-3.5 h-3.5 text-muted-foreground" />
                 <span className="text-xs text-muted-foreground">Upload Logo</span>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      setCropperFile(file);
-                    }
-                  }}
-                  className="hidden"
-                />
-              </label>
+              </button>
             </div>
           </div>
         </div>
