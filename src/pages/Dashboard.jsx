@@ -26,7 +26,10 @@ export default function Dashboard() {
 
   const { data: pendingTasks = [] } = useQuery({
     queryKey: ['pendingTasks'],
-    queryFn: () => base44.entities.PendingTask.list(),
+    queryFn: async () => {
+      const all = await base44.entities.PendingTask.list();
+      return all.filter(t => t.status === 'pending' && !t.archived);
+    },
     enabled: !loading,
   });
 
@@ -177,10 +180,16 @@ export default function Dashboard() {
                 <div className="flex-1 min-w-0 pt-0.5">
                   <p className="text-xs font-medium text-foreground">{task.title}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">{task.app}</p>
+                  {task.blocked_by && (
+                    <p className="text-xs text-destructive mt-1">Blocked: {task.blocked_by}</p>
+                  )}
+                  <div className="flex gap-2 mt-1 flex-wrap">
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{task.category}</span>
+                    <span className={`text-xs px-1.5 py-0.5 rounded whitespace-nowrap ${task.priority === 'high' ? 'bg-destructive/20 text-destructive' : task.priority === 'medium' ? 'bg-accent/20 text-accent' : 'bg-muted text-muted-foreground'}`}>
+                      {task.priority}
+                    </span>
+                  </div>
                 </div>
-                <span className={`text-xs px-2 py-1 rounded whitespace-nowrap flex-shrink-0 ${task.priority === 'high' ? 'bg-destructive/20 text-destructive' : task.priority === 'medium' ? 'bg-accent/20 text-accent' : 'bg-muted text-muted-foreground'}`}>
-                  {task.priority}
-                </span>
               </div>
             ))}
           </div>
