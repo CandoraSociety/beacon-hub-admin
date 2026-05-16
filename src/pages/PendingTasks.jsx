@@ -17,10 +17,12 @@ export default function PendingTasks() {
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({});
 
-  const { data: tasks = [], isLoading } = useQuery({
+  const { data: allTasks = [], isLoading } = useQuery({
     queryKey: ['pendingTasks'],
     queryFn: () => base44.entities.PendingTask.list(),
   });
+
+  const tasks = allTasks.filter(t => !t.archived);
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.PendingTask.update(id, data),
@@ -51,6 +53,14 @@ export default function PendingTasks() {
       priority: task.priority,
       category: task.category,
       blocked_by: task.blocked_by,
+      archived: task.archived,
+    });
+  };
+
+  const handleArchive = (taskId) => {
+    updateMutation.mutate({
+      id: taskId,
+      data: { archived: true },
     });
   };
 
@@ -248,6 +258,17 @@ export default function PendingTasks() {
                       placeholder="What's blocking this task?"
                     />
                   </div>
+                  <div>
+                    <Label className="text-xs flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={editForm.archived || false}
+                        onChange={(e) => setEditForm({ ...editForm, archived: e.target.checked })}
+                        className="rounded"
+                      />
+                      Archived
+                    </Label>
+                  </div>
                   <div className="flex gap-2 justify-end">
                     <Button
                       variant="outline"
@@ -322,6 +343,15 @@ export default function PendingTasks() {
                     </div>
                   )}
                   <div className="flex gap-2 justify-end pt-4 border-t border-white/5">
+                    {selectedTask.status === 'completed' && !selectedTask.archived && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleArchive(selectedTask.id)}
+                      >
+                        Archive
+                      </Button>
+                    )}
                     <Button
                       variant="outline"
                       size="sm"

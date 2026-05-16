@@ -50,6 +50,11 @@
     "blocked_by": {
       "type": "string",
       "description": "What's blocking this task (if any)"
+    },
+    "archived": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether task is archived (hidden from main list)"
     }
   },
   "required": [
