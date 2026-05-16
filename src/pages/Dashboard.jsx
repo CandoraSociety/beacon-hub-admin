@@ -28,7 +28,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     PendingTask.list().then(records => {
-      setPendingTasks(records.filter(r => r.status !== 'Completed' && r.status !== 'Cancelled'));
+      setPendingTasks(records.filter(r => r.status !== 'completed'));
     });
   }, []);
 
