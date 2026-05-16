@@ -41,11 +41,18 @@ export function useBranding() {
           }
           if (background_color) {
             const hsl = hexToHsl(background_color);
-            const root = document.documentElement;
-            root.style.setProperty('--background', hsl);
-            root.style.setProperty('--card', hsl);
-            // Explicitly preserve sidebar colors
-            root.style.setProperty('--sidebar-background', 'hsl(222 60% 8%)');
+            document.documentElement.style.setProperty('--background', hsl);
+            document.documentElement.style.setProperty('--card', hsl);
+            // Apply background only to main, not to the entire page
+            const mainElement = document.querySelector('main');
+            if (mainElement) {
+              mainElement.style.backgroundColor = `hsl(${hsl})`;
+            }
+            // Ensure sidebar keeps its own background
+            const sidebarElement = document.querySelector('aside');
+            if (sidebarElement) {
+              sidebarElement.style.backgroundColor = 'hsl(222 60% 8%)';
+            }
           }
 
           if (foreground_color) {
