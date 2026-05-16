@@ -41,8 +41,10 @@ export function useBranding() {
           }
           if (background_color) {
             const hsl = hexToHsl(background_color);
-            document.documentElement.style.setProperty('--background', hsl);
-            document.documentElement.style.setProperty('--card', hsl);
+            const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
+            if (mainContent) {
+              mainContent.style.backgroundColor = `hsl(${hsl})`;
+            }
           }
 
           if (foreground_color) {
