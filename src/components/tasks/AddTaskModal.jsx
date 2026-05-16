@@ -34,6 +34,7 @@ export default function AddTaskModal({ open, onOpenChange, onTaskAdded }) {
   const [apps, setApps] = useState([]);
   const [showCustomAppInput, setShowCustomAppInput] = useState(false);
   const [customAppName, setCustomAppName] = useState('');
+  const [customAppApplied, setCustomAppApplied] = useState(false);
   const [showAddCategoryDialog, setShowAddCategoryDialog] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -69,9 +70,11 @@ export default function AddTaskModal({ open, onOpenChange, onTaskAdded }) {
       setShowCustomAppInput(true);
       setFormData({ ...formData, app: '' });
       setCustomAppName('');
+      setCustomAppApplied(false);
     } else {
       setShowCustomAppInput(false);
       setCustomAppName('');
+      setCustomAppApplied(false);
       setFormData({ ...formData, app: value });
     }
   };
@@ -82,6 +85,7 @@ export default function AddTaskModal({ open, onOpenChange, onTaskAdded }) {
       return;
     }
     setFormData({ ...formData, app: customAppName });
+    setCustomAppApplied(true);
   };
 
   const handleSubmit = async (e) => {
@@ -191,7 +195,10 @@ export default function AddTaskModal({ open, onOpenChange, onTaskAdded }) {
                 <Input
                   placeholder="Enter new app/category name"
                   value={customAppName}
-                  onChange={(e) => setCustomAppName(e.target.value)}
+                  onChange={(e) => {
+                    setCustomAppName(e.target.value);
+                    setCustomAppApplied(false);
+                  }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
@@ -205,8 +212,9 @@ export default function AddTaskModal({ open, onOpenChange, onTaskAdded }) {
                   size="sm"
                   onClick={handleCustomAppConfirm}
                   variant="default"
+                  disabled={customAppApplied}
                 >
-                  Ok
+                  {customAppApplied ? 'Applied' : 'Ok'}
                 </Button>
               </div>
             )}
