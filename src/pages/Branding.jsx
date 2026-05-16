@@ -212,17 +212,21 @@ export default function Branding() {
                     const file = e.target.files?.[0];
                     if (file) {
                       try {
-                        const { file_url } = await base44.integrations.Core.UploadFile({ file });
-                        setHeaderLogoUrl(file_url);
-                        // Auto-save to HubConfig
-                        const existing = configs.find(c => c.key === 'header_logo_url');
-                        if (existing) {
-                          updateMutation.mutate({ id: existing.id, data: { value: file_url } });
-                        } else {
-                          createMutation.mutate({ key: 'header_logo_url', value: file_url, description: 'Header logo URL', category: 'branding' });
-                        }
-                        toast.success('Logo saved');
-                      } catch {
+                        const reader = new FileReader();
+                        reader.onload = async (event) => {
+                          const { file_url } = await base44.integrations.Core.UploadFile({ file: event.target.result });
+                          setHeaderLogoUrl(file_url);
+                          const existing = configs.find(c => c.key === 'header_logo_url');
+                          if (existing) {
+                            updateMutation.mutate({ id: existing.id, data: { value: file_url } });
+                          } else {
+                            createMutation.mutate({ key: 'header_logo_url', value: file_url, description: 'Header logo URL', category: 'branding' });
+                          }
+                          toast.success('Logo saved');
+                        };
+                        reader.onerror = () => toast.error('Failed to read file');
+                        reader.readAsDataURL(file);
+                      } catch (err) {
                         toast.error('Failed to upload logo');
                       }
                     }
@@ -232,6 +236,11 @@ export default function Branding() {
               </label>
             </div>
           </div>
+        </div>
+        <div className="mt-4 flex justify-end">
+          <Button size="sm" onClick={() => setShowApplyModal(true)} disabled={!headerStyle && !headerLogoUrl}>
+            <Zap className="w-4 h-4 mr-1.5" /> Apply to Apps
+          </Button>
         </div>
       </div>
 
