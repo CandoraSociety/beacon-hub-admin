@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import PageHeader from '@/components/shared/PageHeader';
 import { toast } from 'sonner';
+import { base44 } from '@/api/base44Client';
 import ConnectionPromptModal from '@/components/registry/ConnectionPromptModal';
 import ConfirmConnectionDialog from '@/components/registry/ConfirmConnectionDialog';
 import {
@@ -84,7 +85,24 @@ export default function AppRegistryPage() {
     if (!form.app_name.trim()) { toast.error('App name is required'); return; }
     setSaving(true);
     if (editingApp) {
-      await AppRegistry.update(editingApp.id, form);
+      // If app name changed, sync across all references
+      if (editingApp.app_name !== form.app_name) {
+        try {
+          await base44.functions.invoke('updateAppName', {
+            appId: editingApp.id,
+            oldName: editingApp.app_name,
+            newName: form.app_name,
+          });
+        } catch (error) {
+          console.error('Failed to sync app name:', error);
+          toast.error('Failed to sync app name changes');
+          setSaving(false);
+          return;
+        }
+      } else {
+        // If name didn't change, just update other fields
+        await AppRegistry.update(editingApp.id, form);
+      }
       toast.success('App updated');
       setSaving(false);
       setShowForm(false);
