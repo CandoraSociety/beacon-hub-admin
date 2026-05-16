@@ -372,8 +372,11 @@ export default function Branding() {
           onCancel={() => setCropperFile(null)}
           onCrop={async (blob) => {
             try {
-              const file = new File([blob], 'logo.jpg', { type: 'image/jpeg' });
-              const { file_url } = await base44.integrations.Core.UploadFile({ file });
+              if (!blob) {
+                toast.error('Failed to crop image');
+                return;
+              }
+              const { file_url } = await base44.integrations.Core.UploadFile({ file: blob });
               setHeaderLogoUrl(file_url);
               const existing = configs.find(c => c.key === 'header_logo_url');
               if (existing) {
