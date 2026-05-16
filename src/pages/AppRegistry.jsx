@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { AppRegistry } from '@/api/entities';
 import { AppWindow, Wifi, WifiOff, Pencil, Trash2, Plus, X, Save, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -30,6 +31,7 @@ const emptyForm = {
 };
 
 export default function AppRegistryPage() {
+  const queryClient = useQueryClient();
   const [apps, setApps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -86,6 +88,7 @@ export default function AppRegistryPage() {
       setPromptApp(saved);
     }
     loadApps();
+    queryClient.invalidateQueries({ queryKey: ['connectedApps'] });
   }
 
   async function handleDelete(id) {
