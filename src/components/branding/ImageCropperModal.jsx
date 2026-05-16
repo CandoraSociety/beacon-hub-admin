@@ -1,19 +1,36 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { X, Crop, Upload as UploadIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function ImageCropperModal({ imageFile, onCancel, onCrop }) {
   const [scale, setScale] = useState(1);
   const canvasRef = useRef(null);
-  const [preview, setPreview] = useState(null);
+  const imgRef = useRef(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const reader = new FileReader();
     reader.onload = (e) => {
-      setPreview(e.target.result);
+      const img = new Image();
+      img.onload = () => {
+        imgRef.current = img;
+        drawCanvas();
+      };
+      img.src = e.target.result;
     };
     reader.readAsDataURL(imageFile);
-  }, [imageFile]);
+  }, [imageFile, scale]);
+
+  const drawCanvas = () => {
+    const canvas = canvasRef.current;
+    const img = imgRef.current;
+    if (!canvas || !img) return;
+
+    const ctx = canvas.getContext('2d');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+  };
 
   const handleCrop = () => {
     const canvas = canvasRef.current;
@@ -38,32 +55,18 @@ export default function ImageCropperModal({ imageFile, onCancel, onCrop }) {
         </div>
 
         <div className="p-5">
-          {preview && (
-            <div className="space-y-4">
-              <div className="bg-secondary rounded-lg p-4 flex items-center justify-center max-h-64 overflow-hidden">
-                <canvas
-                  ref={canvasRef}
-                  style={{
-                    maxHeight: '240px',
-                    maxWidth: '100%',
-                  }}
-                />
-              </div>
-              {/* Simple scale slider */}
-              <div>
-                <label className="text-xs text-muted-foreground mb-2 block">Scale</label>
-                <input
-                  type="range"
-                  min="0.5"
-                  max="2"
-                  step="0.1"
-                  value={scale}
-                  onChange={(e) => setScale(parseFloat(e.target.value))}
-                  className="w-full"
-                />
-              </div>
+          <div className="space-y-4">
+            <div className="bg-secondary rounded-lg p-4 flex items-center justify-center max-h-64 overflow-hidden">
+              <canvas
+                ref={canvasRef}
+                style={{
+                  maxHeight: '240px',
+                  maxWidth: '100%',
+                  display: 'block',
+                }}
+              />
             </div>
-          )}
+          </div>
         </div>
 
         <div className="flex gap-2 justify-end p-5 border-t border-white/5">
