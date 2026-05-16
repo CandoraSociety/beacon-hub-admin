@@ -55,6 +55,7 @@ export default function Branding() {
     mutationFn: ({ id, data }) => base44.entities.HubConfig.update(id, data),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['hubConfigs'] });
+      await queryClient.invalidateQueries({ queryKey: ['hubConfigs', 'branding'] });
       const all = await base44.entities.HubConfig.list();
       reapplyColors(all.filter(c => c.category === 'branding'));
       setEditingId(null);
@@ -66,6 +67,7 @@ export default function Branding() {
     mutationFn: (data) => base44.entities.HubConfig.create(data),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['hubConfigs'] });
+      await queryClient.invalidateQueries({ queryKey: ['hubConfigs', 'branding'] });
       const all = await base44.entities.HubConfig.list();
       reapplyColors(all.filter(c => c.category === 'branding'));
       setNewConfig(null);

@@ -1,10 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { X, Crop, Upload as UploadIcon } from 'lucide-react';
+import React, { useRef, useEffect } from 'react';
+import { X, Upload as UploadIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function ImageCropperModal({ imageFile, onCancel, onCrop }) {
   const canvasRef = useRef(null);
-  const [isDrawing, setIsDrawing] = useState(false);
 
   useEffect(() => {
     const reader = new FileReader();
@@ -32,7 +31,6 @@ export default function ImageCropperModal({ imageFile, onCancel, onCrop }) {
         canvas.height = height;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, width, height);
-        setIsDrawing(true);
       };
       img.src = e.target.result;
     };
@@ -41,19 +39,9 @@ export default function ImageCropperModal({ imageFile, onCancel, onCrop }) {
 
   const handleCrop = () => {
     const canvas = canvasRef.current;
-    if (!canvas) {
-      console.error('No canvas ref');
-      return;
-    }
+    if (!canvas) return;
 
-    canvas.toBlob((blob) => {
-      console.log('toBlob callback, blob:', blob);
-      if (blob) {
-        onCrop(blob);
-      } else {
-        console.error('toBlob returned null');
-      }
-    }, 'image/jpeg', 0.9);
+    canvas.toBlob(onCrop, 'image/jpeg', 0.9);
   };
 
   return (
@@ -61,7 +49,6 @@ export default function ImageCropperModal({ imageFile, onCancel, onCrop }) {
       <div className="bg-card border border-white/5 rounded-xl w-full max-w-md shadow-2xl shadow-black/50">
         <div className="flex items-center justify-between p-5 border-b border-white/5">
           <div className="flex items-center gap-3">
-            <Crop className="w-4 h-4 text-primary" />
             <h2 className="text-sm font-semibold text-foreground">Crop Logo</h2>
           </div>
           <button onClick={onCancel} className="p-1 hover:bg-secondary rounded-lg transition-colors">
