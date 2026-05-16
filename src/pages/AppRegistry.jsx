@@ -228,15 +228,18 @@ export default function AppRegistryPage() {
                 )}
               </div>
               <div className="col-span-2 flex justify-end gap-1.5">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
-                  title="Get hub connection prompt"
-                  onClick={() => setPromptApp(app)}
-                >
-                  <Zap className="w-3.5 h-3.5 text-accent" />
-                </Button>
+                <div className="flex flex-col items-end gap-0.5">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2 text-accent hover:text-accent hover:bg-accent/10 gap-1"
+                    onClick={() => setPromptApp(app)}
+                  >
+                    <Zap className="w-3 h-3" />
+                    <span className="text-[11px] font-medium">Connect</span>
+                  </Button>
+                  <span className="text-[10px] text-muted-foreground leading-tight text-right">Copy setup prompt</span>
+                </div>
                 {app.app_url && (
                   <Button variant="ghost" size="icon" className="h-7 w-7" asChild>
                     <a href={app.app_url} target="_blank" rel="noopener noreferrer">
