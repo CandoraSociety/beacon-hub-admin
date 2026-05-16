@@ -61,9 +61,9 @@ export default function ApplyBrandingModal({ onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-      <div className="bg-card border border-border rounded-xl w-full max-w-md shadow-xl">
+      <div className="bg-card border border-white/5 rounded-xl w-full max-w-md shadow-2xl shadow-black/50">
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-border">
+        <div className="flex items-center justify-between p-5 border-b border-white/5">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
               <Zap className="w-4 h-4 text-primary" />
@@ -103,7 +103,7 @@ export default function ApplyBrandingModal({ onClose }) {
                 Select All ({allApps.length} app{allApps.length !== 1 ? 's' : ''})
               </button>
 
-              <div className="border-t border-border my-2" />
+              <div className="border-t border-white/5 my-2" />
 
               {/* App List */}
               <div className="space-y-1 max-h-48 overflow-y-auto">
@@ -130,7 +130,7 @@ export default function ApplyBrandingModal({ onClose }) {
 
         {/* Footer */}
         {allApps.length > 0 && (
-          <div className="flex gap-2 justify-end p-5 border-t border-border">
+          <div className="flex gap-2 justify-end p-5 border-t border-white/5">
             <Button variant="outline" size="sm" onClick={onClose} disabled={applying}>
               Cancel
             </Button>

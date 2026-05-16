@@ -177,14 +177,14 @@ export default function AppRegistryPage() {
           {Array(3).fill(0).map((_, i) => <div key={i} className="h-16 rounded-xl bg-muted animate-pulse" />)}
         </div>
       ) : apps.length === 0 ? (
-        <div className="bg-card border border-border rounded-xl p-16 text-center">
+        <div className="bg-card border border-white/5 rounded-xl p-16 text-center shadow-md shadow-black/20">
           <AppWindow className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
           <p className="text-sm text-muted-foreground mb-4">No apps registered yet.</p>
           <Button size="sm" onClick={openAdd}><Plus className="w-4 h-4 mr-1.5" /> Add Your First App</Button>
         </div>
       ) : (
-        <div className="bg-card border border-border rounded-xl overflow-hidden">
-          <div className="grid grid-cols-12 gap-4 px-5 py-3 border-b border-border bg-muted/30 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+        <div className="bg-card border border-white/5 rounded-xl overflow-hidden shadow-md shadow-black/20">
+          <div className="grid grid-cols-12 gap-4 px-5 py-3 border-b border-white/5 bg-muted/30 text-xs font-medium text-muted-foreground uppercase tracking-wider">
             <div className="col-span-4">App</div>
             <div className="col-span-2">Category</div>
             <div className="col-span-2">Status</div>
@@ -192,7 +192,7 @@ export default function AppRegistryPage() {
             <div className="col-span-2 text-right">Actions</div>
           </div>
           {apps.map((app) => (
-            <div key={app.id} className="grid grid-cols-12 gap-4 px-5 py-4 border-b border-border last:border-0 items-center hover:bg-muted/20 transition-colors">
+            <div key={app.id} className="grid grid-cols-12 gap-4 px-5 py-4 border-b border-white/5 last:border-0 items-center hover:bg-white/5 hover:brightness-110 transition-all duration-200">
               <div className="col-span-4">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">

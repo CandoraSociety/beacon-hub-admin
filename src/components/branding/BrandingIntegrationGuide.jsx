@@ -111,7 +111,7 @@ export default function BrandingIntegrationGuide() {
   }
 
   return (
-    <div className="bg-card border border-border rounded-xl p-5 mt-6 flex items-center gap-4">
+    <div className="bg-card border border-white/5 rounded-xl p-5 mt-6 flex items-center gap-4 shadow-md shadow-black/20 hover:border-white/10 hover:shadow-lg hover:shadow-black/30 hover:brightness-110 transition-all duration-200">
       <div className="w-9 h-9 rounded-lg bg-emerald-500/15 flex items-center justify-center flex-shrink-0">
         <Zap className="w-4 h-4 text-emerald-400" />
       </div>

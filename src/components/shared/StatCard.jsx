@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 
 export default function StatCard({ label, value, subtitle, icon: Icon, accentClass }) {
   return (
-    <div className="bg-card border border-border rounded-xl p-5 group hover:border-primary/30 transition-all duration-300">
+    <div className="bg-card border border-white/5 rounded-xl p-5 group shadow-md shadow-black/20 hover:border-white/10 hover:shadow-lg hover:shadow-black/40 hover:brightness-110 transition-all duration-200">
       <div className="flex items-start justify-between mb-3">
         <div className={cn(
           'w-10 h-10 rounded-lg flex items-center justify-center',

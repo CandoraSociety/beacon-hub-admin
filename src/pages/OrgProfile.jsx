@@ -80,7 +80,7 @@ export default function OrgProfile() {
       />
 
       {/* Logo Preview */}
-      <div className="bg-card border border-border rounded-xl p-6 mb-6">
+      <div className="bg-card border border-white/5 rounded-xl p-6 mb-6 shadow-md shadow-black/20">
         <div className="flex items-center gap-4">
           {form.org_logo_url ? (
             <img src={form.org_logo_url} alt="Logo" className="w-16 h-16 rounded-xl object-cover border border-border" />
@@ -97,7 +97,7 @@ export default function OrgProfile() {
       </div>
 
       {/* Form */}
-      <div className="bg-card border border-border rounded-xl p-6">
+      <div className="bg-card border border-white/5 rounded-xl p-6 shadow-md shadow-black/20">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {fields.map(({ key, label, required }) => (
             <div key={key}>
