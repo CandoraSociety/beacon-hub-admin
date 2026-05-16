@@ -10,7 +10,7 @@ export default function ColorSwatch({ color, label, size = 'md' }) {
   return (
     <div className="flex flex-col items-center gap-2">
       <div
-        className={`${sizeClasses[size]} border border-border shadow-lg`}
+        className={`${sizeClasses[size]} border border-white/10 shadow-lg`}
         style={{ backgroundColor: color || '#888' }}
       />
       {label && <span className="text-xs text-muted-foreground">{label}</span>}

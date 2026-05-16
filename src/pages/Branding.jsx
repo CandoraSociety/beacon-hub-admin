@@ -106,7 +106,7 @@ export default function Branding() {
           { key: 'brand_secondary_color', label: 'Secondary Color', value: secondaryColor },
           { key: 'brand_background_color', label: 'Background Color', value: backgroundColor },
         ].map(({ key, label, value }) => (
-          <div key={key} className="bg-card border border-white/5 rounded-xl p-4 shadow-md shadow-black/20">
+          <div key={key} className="bg-card border border-white/5 rounded-xl p-4 shadow-md shadow-black/20 hover:border-white/10 hover:shadow-lg hover:shadow-black/30 hover:brightness-110 transition-all duration-200">
             <Label className="text-xs text-muted-foreground">{label}</Label>
             <div className="flex gap-2 mt-2 items-center">
               <input
@@ -125,7 +125,7 @@ export default function Branding() {
                     });
                   }
                 }}
-                className="w-12 h-10 rounded-md border border-border cursor-pointer bg-transparent"
+                className="w-12 h-10 rounded-md border border-white/10 cursor-pointer bg-transparent"
               />
               <span className="text-xs font-mono text-primary/80">{value || 'Not set'}</span>
             </div>
@@ -175,7 +175,7 @@ export default function Branding() {
                             type="color"
                             value={editForm.value || '#000000'}
                             onChange={(e) => setEditForm({ ...editForm, value: e.target.value })}
-                            className="w-10 h-9 rounded-md border border-border cursor-pointer bg-transparent"
+                            className="w-10 h-9 rounded-md border border-white/10 cursor-pointer bg-transparent"
                           />
                         )}
                       </div>
