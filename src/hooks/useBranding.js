@@ -25,7 +25,7 @@ function hexToHsl(hex) {
 export function useBranding() {
   useEffect(() => {
     const apply = () => {
-      fetch('https://beacon-nexus-core.base44.app/functions/getBranding')
+      fetch('/api/functions/getBranding')
         .then(r => r.json())
         .then(({ primary_color, secondary_color, background_color, foreground_color }) => {
           if (primary_color) {
