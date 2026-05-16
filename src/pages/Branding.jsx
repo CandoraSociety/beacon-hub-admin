@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Palette, Save, Plus, Trash2, Zap, Edit2, Upload, Image as ImageIcon } from 'lucide-react';
@@ -32,6 +32,14 @@ export default function Branding() {
       return all.filter(c => c.category === 'branding');
     },
   });
+
+  // Load saved header settings
+  React.useEffect(() => {
+    const savedStyle = configs.find(c => c.key === 'header_style')?.value;
+    const savedLogo = configs.find(c => c.key === 'header_logo_url')?.value;
+    if (savedStyle) setHeaderStyle(savedStyle);
+    if (savedLogo) setHeaderLogoUrl(savedLogo);
+  }, [configs]);
 
   const reapplyColors = (updatedConfigs) => {
     const primary = updatedConfigs.find(c => c.key === 'brand_primary_color')?.value;
@@ -109,7 +117,7 @@ export default function Branding() {
             >
               <Plus className="w-4 h-4 mr-1.5" /> Add Config
             </Button>
-            <Button size="sm" onClick={() => setShowApplyModal(true)}>
+            <Button size="sm" onClick={() => setShowApplyModal(true)} disabled={!headerStyle && !headerLogoUrl}>
               <Zap className="w-4 h-4 mr-1.5" /> Apply Changes
             </Button>
           </div>
@@ -164,11 +172,20 @@ export default function Branding() {
       {/* App Header Customization */}
       <div className="mt-8 bg-card border border-white/5 rounded-xl p-6 shadow-md shadow-black/20">
         <h3 className="text-sm font-semibold text-foreground mb-4">App Header Settings</h3>
-        <p className="text-xs text-muted-foreground mb-6">Set default header style and logo. Apply to selected apps via "Apply Changes".</p>
+        <p className="text-xs text-muted-foreground mb-6">Set default header style and logo. Changes save automatically.</p>
         <div className="space-y-4">
           <div>
             <Label className="text-xs">Header Style</Label>
-            <Select value={headerStyle} onValueChange={setHeaderStyle}>
+            <Select value={headerStyle} onValueChange={(value) => {
+              setHeaderStyle(value);
+              // Auto-save to HubConfig
+              const existing = configs.find(c => c.key === 'header_style');
+              if (existing) {
+                updateMutation.mutate({ id: existing.id, data: { value } });
+              } else {
+                createMutation.mutate({ key: 'header_style', value, description: 'Header display style', category: 'branding' });
+              }
+            }}>
               <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="minimal">Minimal</SelectItem>
@@ -197,7 +214,14 @@ export default function Branding() {
                       try {
                         const { file_url } = await base44.integrations.Core.UploadFile({ file });
                         setHeaderLogoUrl(file_url);
-                        toast.success('Logo uploaded');
+                        // Auto-save to HubConfig
+                        const existing = configs.find(c => c.key === 'header_logo_url');
+                        if (existing) {
+                          updateMutation.mutate({ id: existing.id, data: { value: file_url } });
+                        } else {
+                          createMutation.mutate({ key: 'header_logo_url', value: file_url, description: 'Header logo URL', category: 'branding' });
+                        }
+                        toast.success('Logo saved');
                       } catch {
                         toast.error('Failed to upload logo');
                       }
