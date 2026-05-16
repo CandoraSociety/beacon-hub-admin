@@ -23,6 +23,7 @@ const emptyForm = {
   app_name: '',
   app_description: '',
   app_category: 'internal',
+  app_url: '',
   audience: '',
   status: 'active',
   is_hub_connected: false,
@@ -60,6 +61,7 @@ export default function AppRegistryPage() {
       app_name: app.app_name || '',
       app_description: app.app_description || '',
       app_category: app.app_category || 'internal',
+      app_url: app.app_url || '',
       audience: app.audience || '',
       status: app.status || 'active',
       is_hub_connected: app.is_hub_connected ?? true,
@@ -118,6 +120,10 @@ export default function AppRegistryPage() {
             <div>
               <Label className="text-xs">App Name *</Label>
               <Input className="mt-1" placeholder="e.g. CRM App" value={form.app_name} onChange={e => setForm({ ...form, app_name: e.target.value })} />
+            </div>
+            <div>
+              <Label className="text-xs">URL</Label>
+              <Input className="mt-1" placeholder="e.g. https://app.example.com" value={form.app_url} onChange={e => setForm({ ...form, app_url: e.target.value })} />
             </div>
             <div>
               <Label className="text-xs">Category</Label>
