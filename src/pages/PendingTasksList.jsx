@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { AlertCircle, CheckCircle2, Clock, Zap, Plus } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Clock, Zap, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -9,6 +9,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import PageHeader from '@/components/shared/PageHeader';
 import AddTaskModal from '@/components/tasks/AddTaskModal';
 
@@ -18,6 +27,7 @@ export default function PendingTasksList() {
   const [showArchived, setShowArchived] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [connectedApps, setConnectedApps] = useState([]);
+  const [deleteConfirm, setDeleteConfirm] = useState({ open: false, taskId: null, taskTitle: '' });
 
   useEffect(() => {
     async function fetchData() {
@@ -92,6 +102,16 @@ export default function PendingTasksList() {
       );
     } catch (error) {
       console.error('Failed to update task:', error);
+    }
+  };
+
+  const handleDeleteTask = async () => {
+    try {
+      await base44.entities.PendingTask.delete(deleteConfirm.taskId);
+      setTasks(prev => prev.filter(t => t.id !== deleteConfirm.taskId));
+      setDeleteConfirm({ open: false, taskId: null, taskTitle: '' });
+    } catch (error) {
+      console.error('Failed to delete task:', error);
     }
   };
 
@@ -210,12 +230,37 @@ export default function PendingTasksList() {
                       <SelectItem value="completed">Completed</SelectItem>
                     </SelectContent>
                   </Select>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                    onClick={() => setDeleteConfirm({ open: true, taskId: task.id, taskTitle: task.title })}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
             </div>
           ))}
         </div>
       )}
+
+      <AlertDialog open={deleteConfirm.open} onOpenChange={(open) => setDeleteConfirm({ ...deleteConfirm, open })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Task?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{deleteConfirm.taskTitle}"? This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex gap-3 justify-end">
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteTask} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
