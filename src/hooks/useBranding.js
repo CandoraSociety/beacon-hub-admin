@@ -39,11 +39,7 @@ export function useBranding() {
             document.documentElement.style.setProperty('--accent', hsl);
             document.documentElement.style.setProperty('--sidebar-accent', hsl);
           }
-          if (background_color) {
-            const hsl = hexToHsl(background_color);
-            document.documentElement.style.setProperty('--background', hsl);
-            document.documentElement.style.setProperty('--card', hsl);
-          }
+
           if (foreground_color) {
             const fgHsl = hexToHsl(foreground_color);
             const isLight = getLuminance(background_color) > 0.5;
