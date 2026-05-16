@@ -195,16 +195,16 @@ export default function AppRegistryPage() {
         </div>
       ) : (
         <div className="bg-card border border-white/5 rounded-xl overflow-hidden shadow-md shadow-black/20">
-          <div className="grid grid-cols-12 gap-4 px-5 py-3 border-b border-white/5 bg-muted/30 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+          <div className="grid grid-cols-12 gap-0 px-5 py-3 border-b border-white/5 bg-muted/30 text-xs font-medium text-muted-foreground uppercase tracking-wider">
             <div className="col-span-3">App</div>
             <div className="col-span-2">Category</div>
             <div className="col-span-1">Status</div>
-            <div className="col-span-1">Hub</div>
-            <div className="col-span-3">Connection Prompt</div>
+            <div className="col-span-2">Hub</div>
+            <div className="col-span-2">Connection Prompt</div>
             <div className="col-span-2 text-right">Actions</div>
           </div>
            {apps.map((app) => (
-            <div key={app.id} className="grid grid-cols-12 gap-4 px-5 py-4 border-b border-white/5 last:border-0 items-center hover:bg-white/5 hover:brightness-110 transition-all duration-200">
+            <div key={app.id} className="grid grid-cols-12 gap-0 px-5 py-4 border-b border-white/5 last:border-0 items-center hover:bg-white/5 hover:brightness-110 transition-all duration-200">
               <div className="col-span-3">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -224,7 +224,7 @@ export default function AppRegistryPage() {
                   {app.status || 'development'}
                 </Badge>
               </div>
-              <div className="col-span-1">
+              <div className="col-span-2">
                {app.is_hub_connected ? (
                  <div className="flex items-center gap-1.5 text-emerald-400">
                    <Wifi className="w-3.5 h-3.5" />
@@ -241,7 +241,7 @@ export default function AppRegistryPage() {
                  </Button>
                )}
               </div>
-              <div className="col-span-3">
+              <div className="col-span-2">
                 <Button
                   size="sm"
                   className="bg-accent text-accent-foreground hover:bg-accent/90 h-7 text-xs px-3"
