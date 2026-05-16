@@ -3,56 +3,55 @@ import { X, Crop, Upload as UploadIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function ImageCropperModal({ imageFile, onCancel, onCrop }) {
-  const [scale, setScale] = useState(1);
   const canvasRef = useRef(null);
-  const imgRef = useRef(null);
+  const [isDrawing, setIsDrawing] = useState(false);
 
   useEffect(() => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
       img.onload = () => {
-        imgRef.current = img;
-        setTimeout(() => drawCanvas(), 0);
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        const maxWidth = 300;
+        const maxHeight = 240;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+        if (height > maxHeight) {
+          width = (width * maxHeight) / height;
+          height = maxHeight;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        setIsDrawing(true);
       };
       img.src = e.target.result;
     };
     reader.readAsDataURL(imageFile);
   }, [imageFile]);
 
-  const drawCanvas = () => {
+  const handleCrop = () => {
     const canvas = canvasRef.current;
-    const img = imgRef.current;
-    if (!canvas || !img) return;
-
-    const maxWidth = 300;
-    const maxHeight = 240;
-    let width = img.width;
-    let height = img.height;
-
-    if (width > maxWidth) {
-      height = (height * maxWidth) / width;
-      width = maxWidth;
+    if (!canvas) {
+      console.error('No canvas ref');
+      return;
     }
-    if (height > maxHeight) {
-      width = (width * maxHeight) / height;
-      height = maxHeight;
-    }
-
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0, width, height);
-  };
-
-  const handleCrop = async () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
 
     canvas.toBlob((blob) => {
+      console.log('toBlob callback, blob:', blob);
       if (blob) {
-        console.log('Blob created, calling onCrop');
         onCrop(blob);
+      } else {
+        console.error('toBlob returned null');
       }
     }, 'image/jpeg', 0.9);
   };
