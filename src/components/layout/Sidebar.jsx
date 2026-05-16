@@ -87,7 +87,7 @@ export default function Sidebar() {
                 collapsed && 'px-0',
                 isActive
                   ? 'bg-primary/15 text-primary'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-accent/20'
               )}
             >
               <Icon className={cn('w-4 h-4 flex-shrink-0', isActive && 'text-primary')} />
@@ -120,7 +120,7 @@ export default function Sidebar() {
                   rel="noopener noreferrer"
                   title={app.app_name}
                   className={cn(
-                    'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-secondary group',
+                    'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-accent/20 group',
                     collapsed && 'px-0 justify-center'
                   )}
                 >
