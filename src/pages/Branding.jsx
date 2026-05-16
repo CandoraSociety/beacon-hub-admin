@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Palette, Save, Plus, Trash2, Zap, Edit2 } from 'lucide-react';
+import { Palette, Save, Plus, Trash2, Zap, Edit2, Upload, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -178,13 +178,35 @@ export default function Branding() {
             </Select>
           </div>
           <div>
-            <Label className="text-xs">Header Logo URL</Label>
-            <Input
-              className="mt-1"
-              placeholder="https://example.com/logo.png"
-              value={headerLogoUrl}
-              onChange={(e) => setHeaderLogoUrl(e.target.value)}
-            />
+            <Label className="text-xs">Header Logo</Label>
+            <div className="flex items-center gap-2 mt-1">
+              {headerLogoUrl && (
+                <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center border border-white/10">
+                  <ImageIcon className="w-5 h-5 text-primary" />
+                </div>
+              )}
+              <label className="flex-1 px-4 py-2 border border-white/10 rounded-md hover:bg-white/5 transition-colors cursor-pointer flex items-center gap-2">
+                <Upload className="w-3.5 h-3.5 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground">Upload Logo</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      try {
+                        const { file_url } = await base44.integrations.Core.UploadFile({ file });
+                        setHeaderLogoUrl(file_url);
+                        toast.success('Logo uploaded');
+                      } catch {
+                        toast.error('Failed to upload logo');
+                      }
+                    }
+                  }}
+                  className="hidden"
+                />
+              </label>
+            </div>
           </div>
         </div>
       </div>
