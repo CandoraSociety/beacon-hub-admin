@@ -45,12 +45,15 @@ export default function ImageCropperModal({ imageFile, onCancel, onCrop }) {
     ctx.drawImage(img, 0, 0, width, height);
   };
 
-  const handleCrop = () => {
+  const handleCrop = async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     canvas.toBlob((blob) => {
-      onCrop(blob);
+      if (blob) {
+        console.log('Blob created, calling onCrop');
+        onCrop(blob);
+      }
     }, 'image/jpeg', 0.9);
   };
 
