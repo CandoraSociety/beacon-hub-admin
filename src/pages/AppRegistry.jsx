@@ -196,7 +196,7 @@ export default function AppRegistryPage() {
               </Button>
             ))}
           </div>
-          <p className="text-[11px] text-muted-foreground mt-2">Click an app above to copy its connection prompt — paste into that app's chat to connect it to Beacon Hub</p>
+          <p className="text-[11px] text-muted-foreground mt-2">Click the button above to copy its connection prompt — paste into that app's chat to connect it to Beacon Hub</p>
         </div>
       )}
 
