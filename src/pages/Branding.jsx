@@ -76,6 +76,9 @@ export default function Branding() {
   const secondaryColor = configs.find(c => c.key === 'brand_secondary_color')?.value;
   const backgroundColor = configs.find(c => c.key === 'brand_background_color')?.value;
 
+  const QUICK_KEYS = ['brand_primary_color', 'brand_secondary_color', 'brand_background_color'];
+  const listConfigs = configs.filter(c => !QUICK_KEYS.includes(c.key));
+
   const isColorKey = (key) => key?.toLowerCase().includes('color');
 
   // Returns black or white depending on which has better contrast against a hex bg
@@ -155,17 +158,16 @@ export default function Branding() {
 
       <BrandingIntegrationGuide />
 
-      {/* Config List */}
+      {/* Config List — excludes the 3 color keys managed by quick controls above */}
       <div className="space-y-3 mt-6">
         {isLoading ? (
           Array(3).fill(0).map((_, i) => <Skeleton key={i} className="h-20 rounded-xl" />)
-        ) : configs.length === 0 ? (
-          <div className="bg-card border border-white/5 rounded-xl p-12 text-center shadow-md shadow-black/20">
-            <Palette className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
-            <p className="text-sm text-muted-foreground">No branding configs yet. Add your first one.</p>
+        ) : listConfigs.length === 0 && !newConfig ? (
+          <div className="bg-card border border-white/5 rounded-xl p-8 text-center shadow-md shadow-black/20">
+            <p className="text-sm text-muted-foreground">All branding colors are managed above. Use "Add Config" for additional custom settings (e.g. logo URL, font).</p>
           </div>
         ) : (
-          configs.map((config) => (
+          listConfigs.map((config) => (
             <div key={config.id} className="bg-card border border-white/5 rounded-xl p-5 shadow-md shadow-black/20 hover:border-white/10 hover:shadow-lg hover:shadow-black/30 hover:brightness-110 transition-all duration-200">
               {editingId === config.id ? (
                 <div className="space-y-3">
