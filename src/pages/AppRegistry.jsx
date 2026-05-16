@@ -12,6 +12,14 @@ import PageHeader from '@/components/shared/PageHeader';
 import { toast } from 'sonner';
 import ConnectionPromptModal from '@/components/registry/ConnectionPromptModal';
 import ConfirmConnectionDialog from '@/components/registry/ConfirmConnectionDialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const statusStyles = {
   active: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
@@ -41,6 +49,7 @@ export default function AppRegistryPage() {
   const [promptApp, setPromptApp] = useState(null);
   const [lastSavedApp, setLastSavedApp] = useState(null);
   const [confirmingApp, setConfirmingApp] = useState(null);
+  const [deletingApp, setDeletingApp] = useState(null);
 
   async function loadApps() {
     setLoading(true);
@@ -91,9 +100,14 @@ export default function AppRegistryPage() {
     queryClient.invalidateQueries({ queryKey: ['connectedApps'] });
   }
 
-  async function handleDelete(id) {
-    await AppRegistry.delete(id);
+  async function handleDelete(id, appName) {
+    setDeletingApp({ id, appName });
+  }
+
+  async function confirmDelete() {
+    await AppRegistry.delete(deletingApp.id);
     toast.success('App removed');
+    setDeletingApp(null);
     loadApps();
   }
 
@@ -264,9 +278,9 @@ export default function AppRegistryPage() {
                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(app)}>
                   <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDelete(app.id)}>
-                  <Trash2 className="w-3.5 h-3.5 text-destructive" />
-                </Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDelete(app.id, app.app_name)}>
+                   <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                 </Button>
               </div>
             </div>
           ))}
@@ -292,6 +306,23 @@ export default function AppRegistryPage() {
            onCancel={() => setConfirmingApp(null)}
          />
        )}
-    </div>
-  );
-}
+
+       {deletingApp && (
+         <AlertDialog open={!!deletingApp} onOpenChange={() => setDeletingApp(null)}>
+           <AlertDialogContent>
+             <AlertDialogTitle>Delete {deletingApp.appName}?</AlertDialogTitle>
+             <AlertDialogDescription>
+               This will permanently remove this app from the registry. This action cannot be undone.
+             </AlertDialogDescription>
+             <div className="flex justify-end gap-2 mt-4">
+               <AlertDialogCancel>Cancel</AlertDialogCancel>
+               <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                 Delete
+               </AlertDialogAction>
+             </div>
+           </AlertDialogContent>
+         </AlertDialog>
+       )}
+       </div>
+       );
+       }
