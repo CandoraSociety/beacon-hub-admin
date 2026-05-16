@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { AppRegistry, OrgProfile, UserAccessLevel } from '@/api/entities';
+import { AppRegistry, OrgProfile, UserAccessLevel, Department, PendingTask } from '@/api/entities';
 import { Palette, Building2, AppWindow, Rocket, Wifi, ArrowRight, MessageCircle, X, Users, Bot, AlertCircle, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -24,14 +24,13 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [auditRunning, setAuditRunning] = useState(false);
 
-  const { data: pendingTasks = [] } = useQuery({
-    queryKey: ['pendingTasks'],
-    queryFn: async () => {
-      const all = await base44.entities.PendingTask.list();
-      return all.filter(t => t.status === 'pending' && !t.archived);
-    },
-    enabled: !loading,
-  });
+  const [pendingTasks, setPendingTasks] = useState([]);
+
+  useEffect(() => {
+    PendingTask.list().then(records => {
+      setPendingTasks(records.filter(r => r.status !== 'Completed' && r.status !== 'Cancelled'));
+    });
+  }, []);
 
   const { data: lastAudit } = useQuery({
     queryKey: ['lastAudit'],
@@ -175,21 +174,13 @@ export default function Dashboard() {
             <ArrowRight className="w-4 h-4 text-muted-foreground" />
           </div>
           <div className="space-y-2 max-h-48 overflow-y-auto">
-            {pendingTasks.slice(0, 5).map((task) => (
-              <div key={task.id} className="flex items-start gap-3 p-3 bg-secondary/30 rounded-lg">
-                <div className="flex-1 min-w-0 pt-0.5">
-                  <p className="text-xs font-medium text-foreground">{task.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{task.app}</p>
-                  {task.blocked_by && (
-                    <p className="text-xs text-destructive mt-1">Blocked: {task.blocked_by}</p>
-                  )}
-                  <div className="flex gap-2 mt-1 flex-wrap">
-                    <span className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{task.category}</span>
-                    <span className={`text-xs px-1.5 py-0.5 rounded whitespace-nowrap ${task.priority === 'high' ? 'bg-destructive/20 text-destructive' : task.priority === 'medium' ? 'bg-accent/20 text-accent' : 'bg-muted text-muted-foreground'}`}>
-                      {task.priority}
-                    </span>
-                  </div>
+            {pendingTasks.map(task => (
+              <div key={task.id} className="flex items-start gap-3 p-3 bg-secondary/50 rounded-lg">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">{task.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{task.blocked_by}</p>
                 </div>
+                <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary flex-shrink-0">{task.priority}</span>
               </div>
             ))}
           </div>
