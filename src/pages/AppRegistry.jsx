@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AppRegistry } from '@/api/entities';
-import { AppWindow, Wifi, WifiOff, Pencil, Trash2, ExternalLink, Plus, X, Save, Zap } from 'lucide-react';
+import { AppWindow, Wifi, WifiOff, Pencil, Trash2, Plus, X, Save, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -20,7 +20,6 @@ const statusStyles = {
 
 const emptyForm = {
   app_name: '',
-  app_url: '',
   app_description: '',
   app_category: 'internal',
   audience: '',
@@ -57,7 +56,6 @@ export default function AppRegistryPage() {
     setEditingApp(app);
     setForm({
       app_name: app.app_name || '',
-      app_url: app.app_url || '',
       app_description: app.app_description || '',
       app_category: app.app_category || 'internal',
       audience: app.audience || '',
@@ -118,10 +116,6 @@ export default function AppRegistryPage() {
             <div>
               <Label className="text-xs">App Name *</Label>
               <Input className="mt-1" placeholder="e.g. CRM App" value={form.app_name} onChange={e => setForm({ ...form, app_name: e.target.value })} />
-            </div>
-            <div>
-              <Label className="text-xs">App URL</Label>
-              <Input className="mt-1" placeholder="https://..." value={form.app_url} onChange={e => setForm({ ...form, app_url: e.target.value })} />
             </div>
             <div>
               <Label className="text-xs">Category</Label>
@@ -253,13 +247,6 @@ export default function AppRegistryPage() {
                 </Button>
               </div>
               <div className="col-span-2 flex justify-end gap-1.5">
-                {app.app_url && (
-                  <Button variant="ghost" size="icon" className="h-7 w-7" asChild>
-                    <a href={app.app_url} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="w-3.5 h-3.5 text-muted-foreground" />
-                    </a>
-                  </Button>
-                )}
                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(app)}>
                   <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
                 </Button>
