@@ -91,7 +91,7 @@ export default function AddTaskModal({ open, onOpenChange, onTaskAdded }) {
     }
 
     // If custom app was entered, show dialog before submitting
-    if (showCustomAppInput && customAppName.trim()) {
+    if (customAppName.trim()) {
       setShowAddCategoryDialog(true);
       return;
     }
