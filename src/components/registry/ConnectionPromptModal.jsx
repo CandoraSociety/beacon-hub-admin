@@ -8,7 +8,7 @@ function generatePrompt(app) {
   const description = app.app_description ? `\n\nThis app is described as: "${app.app_description}".` : '';
   const audience = app.audience ? ` It serves the following audience: ${app.audience}.` : '';
 
-  return `I need you to connect this app to our central Beacon Nexus Core hub so it can receive live branding updates automatically.
+  return `Hi ${appName} — I need you to connect this app to our central Beacon Nexus Core hub so it can receive live branding updates automatically.
 
 Here's what needs to be done:
 

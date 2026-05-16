@@ -76,8 +76,7 @@ export default function AppRegistryPage() {
       setSaving(false);
       setShowForm(false);
     } else {
-      const saved = form;
-      await AppRegistry.create(form);
+      const saved = await AppRegistry.create(form);
       toast.success('App added');
       setSaving(false);
       setShowForm(false);
@@ -179,24 +178,11 @@ export default function AppRegistryPage() {
         </div>
       )}
 
-      {/* Connect Prompt CTA */}
+      {/* Connect Prompt CTA — shown only when apps exist */}
       {!loading && apps.length > 0 && (
-        <div className="mb-4 p-4 bg-accent/5 border border-accent/20 rounded-xl">
-          <div className="flex flex-wrap items-center gap-2">
-            {apps.map(app => (
-              <Button
-                key={app.id}
-                variant="outline"
-                size="sm"
-                className="border-accent/40 text-accent hover:bg-accent/10 hover:text-accent gap-1.5"
-                onClick={() => setPromptApp(app)}
-              >
-                <Zap className="w-3 h-3" />
-                {app.app_name}
-              </Button>
-            ))}
-          </div>
-          <p className="text-[11px] text-muted-foreground mt-2">Click the button above to copy its connection prompt — paste into that app's chat to connect it to Beacon Hub</p>
+        <div className="mb-4 p-3 bg-accent/5 border border-accent/20 rounded-xl flex items-center gap-3">
+          <Zap className="w-4 h-4 text-accent flex-shrink-0" />
+          <p className="text-xs text-muted-foreground flex-1">To connect an app to Beacon Hub, click its <span className="text-accent font-medium">Connection Prompt</span> button in the list below — then paste the copied prompt into that app's Base44 chat.</p>
         </div>
       )}
 
@@ -214,15 +200,16 @@ export default function AppRegistryPage() {
       ) : (
         <div className="bg-card border border-white/5 rounded-xl overflow-hidden shadow-md shadow-black/20">
           <div className="grid grid-cols-12 gap-4 px-5 py-3 border-b border-white/5 bg-muted/30 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            <div className="col-span-4">App</div>
+            <div className="col-span-3">App</div>
             <div className="col-span-2">Category</div>
-            <div className="col-span-2">Status</div>
-            <div className="col-span-2">Hub</div>
+            <div className="col-span-1">Status</div>
+            <div className="col-span-1">Hub</div>
+            <div className="col-span-3">Connection Prompt</div>
             <div className="col-span-2 text-right">Actions</div>
           </div>
           {apps.map((app) => (
             <div key={app.id} className="grid grid-cols-12 gap-4 px-5 py-4 border-b border-white/5 last:border-0 items-center hover:bg-white/5 hover:brightness-110 transition-all duration-200">
-              <div className="col-span-4">
+              <div className="col-span-3">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                     <AppWindow className="w-4 h-4 text-primary" />
@@ -236,23 +223,34 @@ export default function AppRegistryPage() {
               <div className="col-span-2">
                 <span className="text-xs text-muted-foreground capitalize">{app.app_category || '—'}</span>
               </div>
-              <div className="col-span-2">
+              <div className="col-span-1">
                 <Badge variant="outline" className={`text-[11px] ${statusStyles[app.status] || statusStyles.development}`}>
                   {app.status || 'development'}
                 </Badge>
               </div>
-              <div className="col-span-2">
+              <div className="col-span-1">
                 {app.is_hub_connected ? (
                   <div className="flex items-center gap-1.5 text-emerald-400">
                     <Wifi className="w-3.5 h-3.5" />
                     <span className="text-xs">Connected</span>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                  <div className="flex items-center gap-1.5 text-amber-400">
                     <WifiOff className="w-3.5 h-3.5" />
                     <span className="text-xs">Not connected</span>
                   </div>
                 )}
+              </div>
+              <div className="col-span-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-accent/40 text-accent hover:bg-accent/10 hover:text-accent gap-1.5 text-[11px] h-7 px-2.5 truncate max-w-full"
+                  onClick={() => setPromptApp(app)}
+                >
+                  <Zap className="w-3 h-3 flex-shrink-0" />
+                  <span className="truncate">{app.app_name} Connection Prompt – Click to Copy</span>
+                </Button>
               </div>
               <div className="col-span-2 flex justify-end gap-1.5">
                 {app.app_url && (
