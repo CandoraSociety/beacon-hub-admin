@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { ChevronRight, Trash2, Edit2, X } from 'lucide-react';
+import { ChevronRight, Trash2, Edit2, X, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,6 +13,7 @@ import { toast } from 'sonner';
 import PageHeader from '@/components/shared/PageHeader';
 
 export default function PendingTasks() {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [selectedTask, setSelectedTask] = useState(null);
   const [editingId, setEditingId] = useState(null);
@@ -107,6 +109,14 @@ export default function PendingTasks() {
 
   return (
     <div>
+      <div className="flex items-center gap-2 mb-6">
+        <button
+          onClick={() => navigate('/')}
+          className="p-2 hover:bg-secondary rounded-lg transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5 text-muted-foreground hover:text-foreground" />
+        </button>
+      </div>
       <PageHeader
         title="Pending Tasks"
         description="Track all pending items across your apps that require action or infrastructure setup."
