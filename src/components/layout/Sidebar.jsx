@@ -45,7 +45,7 @@ export default function Sidebar() {
 
   return (
     <aside className={cn(
-      "fixed left-0 top-0 bottom-0 bg-black border-r border-white/5 flex flex-col z-50 transition-all duration-300",
+      "fixed left-0 top-0 bottom-0 bg-sidebar border-r border-white/5 flex flex-col z-50 transition-all duration-300",
       collapsed ? "w-20" : "w-64"
     )}>
       {/* Logo & Collapse */}

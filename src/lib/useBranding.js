@@ -40,11 +40,32 @@ export function applyBrandingColors(primary_color, secondary_color, background_c
     document.documentElement.style.setProperty('--sidebar-accent', hsl);
   }
   if (background_color) {
+    const isLight = getLuminance(background_color) > 0.5;
+
+    // Main background
     const hsl = hexToHsl(background_color);
     document.documentElement.style.setProperty('--background', hsl);
     document.documentElement.style.setProperty('--card', hsl);
-    // Auto-set foreground based on background luminance
-    const isLight = getLuminance(background_color) > 0.5;
+
+    // Sidebar: slightly darker if light bg, slightly darker/deeper if dark bg
+    const r = parseInt(background_color.slice(1, 3), 16);
+    const g = parseInt(background_color.slice(3, 5), 16);
+    const b = parseInt(background_color.slice(5, 7), 16);
+    const offset = isLight ? -20 : -15; // darken sidebar relative to bg
+    const sr = Math.max(0, Math.min(255, r + offset));
+    const sg = Math.max(0, Math.min(255, g + offset));
+    const sb = Math.max(0, Math.min(255, b + offset));
+    const sidebarHex = `#${sr.toString(16).padStart(2,'0')}${sg.toString(16).padStart(2,'0')}${sb.toString(16).padStart(2,'0')}`;
+    document.documentElement.style.setProperty('--sidebar-background', hexToHsl(sidebarHex));
+
+    // Secondary surfaces (card, secondary)
+    const secOffset = isLight ? -10 : -8;
+    const cr = Math.max(0, Math.min(255, r + secOffset));
+    const cg = Math.max(0, Math.min(255, g + secOffset));
+    const cb = Math.max(0, Math.min(255, b + secOffset));
+    document.documentElement.style.setProperty('--secondary', hexToHsl(`#${cr.toString(16).padStart(2,'0')}${cg.toString(16).padStart(2,'0')}${cb.toString(16).padStart(2,'0')}`));
+
+    // Foreground contrast
     const fg = isLight ? '222 20% 10%' : '210 40% 96%';
     const fgMuted = isLight ? '215 15% 40%' : '215 20% 55%';
     document.documentElement.style.setProperty('--foreground', fg);
