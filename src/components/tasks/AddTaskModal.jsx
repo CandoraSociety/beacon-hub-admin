@@ -75,12 +75,13 @@ export default function AddTaskModal({ open, onOpenChange, onTaskAdded }) {
     }
   };
 
-  const handleCustomAppSubmit = () => {
+  const handleCustomAppConfirm = () => {
     if (!customAppName.trim()) {
       toast.error('Please enter an app/category name');
       return;
     }
-    setShowAddCategoryDialog(true);
+    setFormData({ ...formData, app: customAppName });
+    setShowCustomAppInput(false);
   };
 
   const handleSubmit = async (e) => {
@@ -194,35 +195,19 @@ export default function AddTaskModal({ open, onOpenChange, onTaskAdded }) {
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
-                      handleCustomAppSubmit();
+                      handleCustomAppConfirm();
                     }
                   }}
                   autoFocus
                 />
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={handleCustomAppSubmit}
-                    variant="default"
-                    className="flex-1"
-                  >
-                    Continue
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={() => {
-                      setShowCustomAppInput(false);
-                      setCustomAppName('');
-                      setFormData({ ...formData, app: '' });
-                    }}
-                    variant="outline"
-                    className="flex-1"
-                  >
-                    Cancel
-                  </Button>
-                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={handleCustomAppConfirm}
+                  variant="default"
+                >
+                  Ok
+                </Button>
               </div>
             )}
           </div>
