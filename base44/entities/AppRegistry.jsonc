@@ -66,6 +66,10 @@
     "display_name": {
       "type": "string",
       "description": "Display name shown in the app header (overrides app_name if set)"
+    },
+    "integration_token": {
+      "type": "string",
+      "description": "Secure token for pushing integrations to this app"
     }
   },
   "required": [

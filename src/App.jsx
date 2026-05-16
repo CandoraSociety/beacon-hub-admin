@@ -13,6 +13,7 @@ import Dashboard from '@/pages/Dashboard';
 import Branding from '@/pages/Branding';
 import OrgProfile from '@/pages/OrgProfile';
 import AppRegistry from '@/pages/AppRegistry';
+import AppIntegrations from '@/pages/AppIntegrations';
 import NewAppLauncher from '@/pages/NewAppLauncher';
 import Permissions from '@/pages/Permissions';
 import PendingTasks from '@/pages/PendingTasks';
@@ -47,6 +48,7 @@ const AuthenticatedApp = () => {
         <Route path="/branding" element={<Branding />} />
         <Route path="/org-profile" element={<OrgProfile />} />
         <Route path="/app-registry" element={<AppRegistry />} />
+        <Route path="/app-integrations" element={<AppIntegrations />} />
         <Route path="/new-app" element={<NewAppLauncher />} />
         <Route path="/permissions" element={<Permissions />} />
         <Route path="/pending-tasks" element={<PendingTasks />} />

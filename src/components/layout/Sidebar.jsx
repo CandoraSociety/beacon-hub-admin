@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Palette, Building2, AppWindow, Rocket, Hexagon, ChevronLeft, ExternalLink, CheckSquare, MessageCircle, X } from 'lucide-react';
+import { LayoutDashboard, Palette, Building2, AppWindow, Rocket, Hexagon, ChevronLeft, ExternalLink, CheckSquare, MessageCircle, X, Plug } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { SidebarContext } from '@/lib/SidebarContext';
@@ -13,7 +13,13 @@ const navItems = [
   { path: '/branding', label: 'Design', icon: Palette },
   { path: '/org-profile', label: 'Org Profile', icon: Building2 },
   { path: '/app-registry', label: 'App Registry', icon: AppWindow },
-  { path: '/new-app', label: 'New App', icon: Rocket },
+  { 
+    label: 'App Management', 
+    submenu: [
+      { path: '/app-integrations', label: 'App Integrations', icon: Plug },
+      { path: '/new-app', label: 'New App', icon: Rocket },
+    ]
+  },
 ];
 
 export default function Sidebar() {
@@ -60,7 +66,45 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 p-3 space-y-1">
-        {navItems.map(({ path, label, icon: Icon }) => {
+        {navItems.map((item) => {
+          if (item.submenu) {
+            return (
+              <div key={item.label} className="space-y-1">
+                {!collapsed && (
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground px-3 py-2">{item.label}</p>
+                )}
+                {item.submenu.map(({ path, label, icon: Icon }) => {
+                  const isActive = pathname === path;
+                  return (
+                    <Link
+                      key={path}
+                      to={path}
+                      title={collapsed ? label : ''}
+                      className={cn(
+                        'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 justify-center',
+                        collapsed && 'px-0',
+                        isActive
+                          ? 'bg-primary/15 text-primary'
+                          : 'text-muted-foreground hover:text-accent hover:bg-accent/25'
+                      )}
+                    >
+                      <Icon className={cn('w-4 h-4 flex-shrink-0', isActive && 'text-primary')} />
+                      {!collapsed && (
+                        <>
+                          {label}
+                          {isActive && (
+                            <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
+                          )}
+                        </>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            );
+          }
+
+          const { path, label, icon: Icon } = item;
           const isActive = pathname === path;
           return (
             <Link
