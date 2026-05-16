@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 
 const navItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/branding', label: 'Branding', icon: Palette },
+  { path: '/branding', label: 'Design', icon: Palette },
   { path: '/org-profile', label: 'Org Profile', icon: Building2 },
   { path: '/app-registry', label: 'App Registry', icon: AppWindow },
   { path: '/new-app', label: 'New App', icon: Rocket },

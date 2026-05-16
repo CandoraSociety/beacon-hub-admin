@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { AppRegistry } from '@/api/entities';
-import { AppWindow, Wifi, WifiOff, Pencil, Trash2, Plus, X, Save, Zap, Upload, Image as ImageIcon } from 'lucide-react';
+import { AppWindow, Wifi, WifiOff, Pencil, Trash2, Plus, X, Save, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -20,7 +20,6 @@ import {
   AlertDialogDescription,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { base44 } from '@/api/base44Client';
 
 const statusStyles = {
   active: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
@@ -37,9 +36,6 @@ const emptyForm = {
   audience: '',
   status: 'active',
   is_hub_connected: true,
-  header_style: 'standard',
-  header_logo_url: '',
-  display_name: '',
 };
 
 export default function AppRegistryPage() {
@@ -54,7 +50,6 @@ export default function AppRegistryPage() {
   const [lastSavedApp, setLastSavedApp] = useState(null);
   const [confirmingApp, setConfirmingApp] = useState(null);
   const [deletingApp, setDeletingApp] = useState(null);
-  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   async function loadApps() {
     setLoading(true);
@@ -81,26 +76,8 @@ export default function AppRegistryPage() {
       audience: app.audience || '',
       status: app.status || 'active',
       is_hub_connected: app.is_hub_connected ?? true,
-      header_style: app.header_style || 'standard',
-      header_logo_url: app.header_logo_url || '',
-      display_name: app.display_name || '',
     });
     setShowForm(true);
-  }
-
-  async function handleLogoUpload(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploadingLogo(true);
-    try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setForm({ ...form, header_logo_url: file_url });
-      toast.success('Logo uploaded');
-    } catch (err) {
-      toast.error('Failed to upload logo');
-    } finally {
-      setUploadingLogo(false);
-    }
   }
 
   async function handleSave() {
@@ -209,42 +186,6 @@ export default function AppRegistryPage() {
           <div>
             <Label className="text-xs">Description</Label>
             <Textarea className="mt-1 h-16" placeholder="What does this app do?" value={form.app_description} onChange={e => setForm({ ...form, app_description: e.target.value })} />
-          </div>
-
-          <div className="border-t border-white/10 pt-4 mt-4">
-            <h4 className="text-xs font-semibold text-foreground mb-3">Header Customization</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <Label className="text-xs">Display Name (in app header)</Label>
-                <Input className="mt-1" placeholder="Leave blank to use app name" value={form.display_name} onChange={e => setForm({ ...form, display_name: e.target.value })} />
-              </div>
-              <div>
-                <Label className="text-xs">Header Style</Label>
-                <Select value={form.header_style} onValueChange={v => setForm({ ...form, header_style: v })}>
-                  <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="minimal">Minimal</SelectItem>
-                    <SelectItem value="standard">Standard</SelectItem>
-                    <SelectItem value="prominent">Prominent</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="mt-3">
-              <Label className="text-xs">Header Logo</Label>
-              <div className="mt-2 flex items-center gap-3">
-                <label className="flex-1 px-4 py-2 border border-white/10 rounded-lg cursor-pointer hover:bg-white/5 transition-colors flex items-center gap-2">
-                  <Upload className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">{uploadingLogo ? 'Uploading...' : 'Choose Image'}</span>
-                  <input type="file" accept="image/*" onChange={handleLogoUpload} disabled={uploadingLogo} className="hidden" />
-                </label>
-                {form.header_logo_url && (
-                  <div className="w-12 h-12 rounded-lg bg-white/5 flex items-center justify-center border border-white/10">
-                    <ImageIcon className="w-6 h-6 text-primary" />
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
 
           <div className="flex justify-end gap-2">

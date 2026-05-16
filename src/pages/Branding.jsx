@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Palette, Save, Plus, Trash2, Zap } from 'lucide-react';
+import { Palette, Save, Plus, Trash2, Zap, Edit2 } from 'lucide-react';
+import AppHeaderCustomization from '@/components/design/AppHeaderCustomization';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -94,8 +95,8 @@ export default function Branding() {
   return (
     <div>
       <PageHeader
-        title="Branding Control Panel"
-        description="Manage your organization's visual identity. Changes here propagate to all connected apps."
+         title="Design Control Panel"
+         description="Manage your organization's visual identity and app headers. Changes here propagate to all connected apps."
         actions={
           <div className="flex gap-2">
             <Button
@@ -157,6 +158,13 @@ export default function Branding() {
       )}
 
       <BrandingIntegrationGuide />
+
+      {/* App Header Customization */}
+      <div className="mt-8 bg-card border border-white/5 rounded-xl p-6 shadow-md shadow-black/20">
+        <h3 className="text-sm font-semibold text-foreground mb-4">App Header Customization</h3>
+        <p className="text-xs text-muted-foreground mb-6">Configure header styles and logos for individual apps.</p>
+        <AppHeaderCustomization />
+      </div>
 
       {/* Config List — excludes the 3 color keys managed by quick controls above */}
       <div className="space-y-3 mt-6">
