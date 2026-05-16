@@ -209,7 +209,7 @@ export default function AppRegistryPage() {
           <div className="flex justify-end gap-2">
             <Button variant="outline" size="sm" onClick={() => setShowForm(false)}>Cancel</Button>
             <Button size="sm" onClick={handleSave} disabled={saving}>
-              <Save className="w-3.5 h-3.5 mr-1.5" /> {saving ? 'Saving...' : 'Save App'}
+              <Save className="w-3.5 h-3.5 mr-1.5" /> {saving ? 'Saving...' : (editingApp ? 'Save Changes' : 'Save App')}
             </Button>
           </div>
         </div>
