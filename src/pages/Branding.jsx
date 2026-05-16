@@ -78,6 +78,16 @@ export default function Branding() {
 
   const isColorKey = (key) => key?.toLowerCase().includes('color');
 
+  // Returns black or white depending on which has better contrast against a hex bg
+  const getContrastColor = (hex) => {
+    if (!hex) return '#ffffff';
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance > 0.5 ? '#000000' : '#ffffff';
+  };
+
   return (
     <div>
       <PageHeader
@@ -89,6 +99,7 @@ export default function Branding() {
               size="sm"
               variant="outline"
               onClick={() => setNewConfig({ key: '', value: '', description: '', category: 'branding' })}
+              className="border-white/20 hover:border-white/40"
             >
               <Plus className="w-4 h-4 mr-1.5" /> Add Config
             </Button>
@@ -105,10 +116,20 @@ export default function Branding() {
           { key: 'brand_primary_color', label: 'Primary Color', value: primaryColor },
           { key: 'brand_secondary_color', label: 'Secondary Color', value: secondaryColor },
           { key: 'brand_background_color', label: 'Background Color', value: backgroundColor },
-        ].map(({ key, label, value }) => (
-          <div key={key} className="bg-card border border-white/5 rounded-xl p-4 shadow-md shadow-black/20 hover:border-white/10 hover:shadow-lg hover:shadow-black/30 hover:brightness-110 transition-all duration-200">
-            <Label className="text-xs text-muted-foreground">{label}</Label>
-            <div className="flex gap-2 mt-2 items-center">
+        ].map(({ key, label, value }) => {
+          const contrastText = getContrastColor(value);
+          const hasColor = !!value;
+          return (
+            <label
+              key={key}
+              className="relative rounded-xl p-4 shadow-md shadow-black/20 hover:shadow-lg hover:shadow-black/30 hover:brightness-110 transition-all duration-200 cursor-pointer block overflow-hidden border border-white/10"
+              style={hasColor ? { backgroundColor: value } : {}}
+            >
+              {!hasColor && <div className="absolute inset-0 bg-card" />}
+              <div className="relative z-10">
+                <p className="text-xs font-medium" style={{ color: hasColor ? contrastText : undefined, opacity: 0.75 }}>{label}</p>
+                <p className="text-sm font-mono font-semibold mt-1" style={{ color: hasColor ? contrastText : undefined }}>{value || 'Not set'}</p>
+              </div>
               <input
                 type="color"
                 value={value || '#000000'}
@@ -117,20 +138,14 @@ export default function Branding() {
                   if (config) {
                     updateMutation.mutate({ id: config.id, data: { value: e.target.value } });
                   } else {
-                    createMutation.mutate({
-                      key,
-                      value: e.target.value,
-                      description: label,
-                      category: 'branding',
-                    });
+                    createMutation.mutate({ key, value: e.target.value, description: label, category: 'branding' });
                   }
                 }}
-                className="w-12 h-10 rounded-md border border-white/10 cursor-pointer bg-transparent"
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
               />
-              <span className="text-xs font-mono text-primary/80">{value || 'Not set'}</span>
-            </div>
-          </div>
-        ))}
+            </label>
+          );
+        })}
       </div>
 
       {/* Live Preview */}
