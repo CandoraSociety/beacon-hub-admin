@@ -48,6 +48,24 @@
       ],
       "default": "development",
       "description": "Current status of the app"
+    },
+    "header_style": {
+      "type": "string",
+      "enum": [
+        "minimal",
+        "standard",
+        "prominent"
+      ],
+      "default": "standard",
+      "description": "Header display style for the app"
+    },
+    "header_logo_url": {
+      "type": "string",
+      "description": "URL to the app header logo image"
+    },
+    "display_name": {
+      "type": "string",
+      "description": "Display name shown in the app header (overrides app_name if set)"
     }
   },
   "required": [
