@@ -105,40 +105,40 @@ export default function Sidebar() {
       </nav>
 
       {/* Connected Apps */}
-      {connectedApps.length > 0 && (
-        <div className="px-3 pb-2">
-          <div className={cn("border-t border-white/5 pt-3 mb-1", !collapsed && "")}>
-            {!collapsed && (
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-2">Connected Apps</p>
-            )}
-            <div className="space-y-1">
-              {connectedApps.map(app => (
-                <a
-                  key={app.id}
-                  href={app.app_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title={app.app_name}
-                  className={cn(
-                    'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-muted-foreground hover:text-accent hover:bg-accent/25 group',
-                    collapsed && 'px-0 justify-center'
-                  )}
-                >
-                  <div className="w-5 h-5 rounded bg-primary/20 flex items-center justify-center flex-shrink-0 text-[10px] font-bold text-primary uppercase">
-                    {app.app_name.charAt(0)}
-                  </div>
-                  {!collapsed && (
-                    <>
-                      <span className="truncate flex-1">{app.app_name}</span>
-                      <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-60 flex-shrink-0" />
-                    </>
-                  )}
-                </a>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+       {connectedApps.length > 0 && (
+         <div className="flex-1 px-3 pb-2 min-h-0 flex flex-col overflow-hidden">
+           <div className={cn("border-t border-white/5 pt-3 mb-1 flex flex-col min-h-0 flex-1", !collapsed && "")}>
+             {!collapsed && (
+               <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-2 flex-shrink-0">Connected Apps</p>
+             )}
+             <div className="space-y-1 overflow-y-auto flex-1 min-h-0">
+               {connectedApps.map(app => (
+                 <a
+                   key={app.id}
+                   href={app.app_url}
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   title={app.app_name}
+                   className={cn(
+                     'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-muted-foreground hover:text-accent hover:bg-accent/25 group flex-shrink-0',
+                     collapsed && 'px-0 justify-center'
+                   )}
+                 >
+                   <div className="w-5 h-5 rounded bg-primary/20 flex items-center justify-center flex-shrink-0 text-[10px] font-bold text-primary uppercase">
+                     {app.app_name.charAt(0)}
+                   </div>
+                   {!collapsed && (
+                     <>
+                       <span className="truncate flex-1">{app.app_name}</span>
+                       <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-60 flex-shrink-0" />
+                     </>
+                   )}
+                 </a>
+               ))}
+             </div>
+           </div>
+         </div>
+       )}
 
       {/* Footer */}
       <div className="p-4 border-t border-white/5">
