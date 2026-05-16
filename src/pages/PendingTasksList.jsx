@@ -57,7 +57,7 @@ export default function PendingTasksList() {
     return acc;
   }, {});
 
-  const allAppsWithCounts = ['general', ...connectedApps.sort()].map(app => ({
+  const allAppsWithCounts = ['general', 'Beacon', 'OneDrive', ...connectedApps.filter(a => a !== 'Beacon' && a !== 'OneDrive').sort()].map(app => ({
     name: app,
     count: tasksByApp[app] || 0,
   }));
