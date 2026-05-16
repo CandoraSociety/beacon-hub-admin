@@ -17,23 +17,29 @@ export default function PendingTasksList() {
   const [loading, setLoading] = useState(true);
   const [showArchived, setShowArchived] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [connectedApps, setConnectedApps] = useState([]);
 
   useEffect(() => {
-    async function fetchTasks() {
+    async function fetchData() {
       try {
-        const allTasks = await base44.entities.PendingTask.list();
+        const [allTasks, apps] = await Promise.all([
+          base44.entities.PendingTask.list(),
+          base44.entities.AppRegistry.list(),
+        ]);
         setTasks(allTasks);
+        const connected = apps.filter(a => a.is_hub_connected && a.status === 'active');
+        setConnectedApps(connected.map(a => a.app_name));
       } catch (error) {
-        console.error('Failed to fetch tasks:', error);
+        console.error('Failed to fetch data:', error);
       } finally {
         setLoading(false);
       }
     }
-    fetchTasks();
+    fetchData();
 
     // Subscribe to real-time updates
-    const unsubscribe = base44.entities.PendingTask.subscribe((event) => {
-      fetchTasks();
+    const unsubscribe = base44.entities.PendingTask.subscribe(() => {
+      fetchData();
     });
 
     return unsubscribe;
@@ -43,13 +49,18 @@ export default function PendingTasksList() {
   const archivedTasks = tasks.filter(t => t.archived);
   const displayedTasks = showArchived ? archivedTasks : activeTasks;
 
-  // Group active tasks by app
+  // Group active tasks by app and include all connected apps
   const tasksByApp = activeTasks.reduce((acc, task) => {
     const app = task.app || 'general';
     if (!acc[app]) acc[app] = 0;
     acc[app]++;
     return acc;
   }, {});
+
+  const allAppsWithCounts = ['general', ...connectedApps.sort()].map(app => ({
+    name: app,
+    count: tasksByApp[app] || 0,
+  }));
 
   const handleStatusChange = async (taskId, newStatus) => {
     const isArchivable = newStatus === 'completed' || newStatus === 'archived';
@@ -128,19 +139,17 @@ export default function PendingTasksList() {
 
       <AddTaskModal open={modalOpen} onOpenChange={setModalOpen} onTaskAdded={() => {}} />
 
-      {!showArchived && activeTasks.length > 0 && (
+      {!showArchived && connectedApps.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-8">
-          {Object.entries(tasksByApp)
-            .sort(([a], [b]) => a.localeCompare(b))
-            .map(([app, count]) => (
-              <div
-                key={app}
-                className="bg-card border border-white/5 rounded-lg p-4 text-center hover:border-white/10 transition-colors"
-              >
-                <p className="text-xs font-semibold text-foreground uppercase tracking-wider">{app}</p>
-                <p className="text-2xl font-bold text-primary mt-2">{count}</p>
-              </div>
-            ))}
+          {allAppsWithCounts.map(({ name, count }) => (
+            <div
+              key={name}
+              className="bg-card border border-white/5 rounded-lg p-4 text-center hover:border-white/10 transition-colors"
+            >
+              <p className="text-xs font-semibold text-foreground uppercase tracking-wider">{name}</p>
+              <p className="text-2xl font-bold text-primary mt-2">{count}</p>
+            </div>
+          ))}
         </div>
       )}
 
