@@ -1,6 +1,6 @@
-import React, { useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Palette, Building2, AppWindow, Rocket, Hexagon, ChevronLeft, ExternalLink, CheckSquare } from 'lucide-react';
+import { LayoutDashboard, Palette, Building2, AppWindow, Rocket, Hexagon, ChevronLeft, ExternalLink, CheckSquare, MessageCircle, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { SidebarContext } from '@/lib/SidebarContext';
@@ -19,6 +19,7 @@ const navItems = [
 export default function Sidebar() {
   const { collapsed, setCollapsed } = useContext(SidebarContext);
   const { pathname } = useLocation();
+  const [chatOpen, setChatOpen] = useState(false);
 
   const { data: connectedApps = [] } = useQuery({
     queryKey: ['connectedApps'],
@@ -89,9 +90,21 @@ export default function Sidebar() {
       </nav>
 
       {/* Connected Apps */}
-       {connectedApps.length > 0 && (
-         <div className="flex-1 px-3 pb-2 min-h-0 flex flex-col overflow-hidden">
-           <div className={cn("border-t border-white/5 pt-3 mb-1 flex flex-col min-h-0 flex-1", !collapsed && "")}>
+       <div className="flex-1 px-3 pb-3 min-h-0 flex flex-col overflow-hidden">
+         <button
+           onClick={() => setChatOpen(true)}
+           title={collapsed ? 'Chat with Beacon' : ''}
+           className={cn(
+             'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 text-muted-foreground hover:text-accent hover:bg-accent/25 group flex-shrink-0',
+             collapsed && 'px-0 justify-center'
+           )}
+         >
+           <MessageCircle className="w-4 h-4 flex-shrink-0" />
+           {!collapsed && <span className="truncate flex-1">Chat with Beacon</span>}
+         </button>
+
+         {connectedApps.length > 0 && (
+           <div className={cn("border-t border-white/5 pt-3 mt-2 mb-1 flex flex-col min-h-0 flex-1", !collapsed && "")}>
              {!collapsed && (
                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-2 flex-shrink-0">Connected Apps</p>
              )}
@@ -120,6 +133,20 @@ export default function Sidebar() {
                  </a>
                ))}
              </div>
+           </div>
+         )}
+       </div>
+
+       {chatOpen && (
+         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+           <div className="bg-card rounded-xl w-full max-w-2xl h-[80vh] flex flex-col border border-border">
+             <div className="flex items-center justify-between p-4 border-b border-border">
+               <h2 className="font-semibold text-foreground">Chat with Beacon</h2>
+               <button onClick={() => setChatOpen(false)} className="p-1 hover:bg-secondary rounded-lg transition-colors">
+                 <X className="w-5 h-5 text-foreground" />
+               </button>
+             </div>
+             <iframe src="https://app.base44.com/superagent/6a056407a50c45c592324875" className="flex-1 w-full border-none rounded-b-lg" />
            </div>
          </div>
        )}
