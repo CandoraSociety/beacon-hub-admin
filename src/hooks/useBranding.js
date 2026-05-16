@@ -43,10 +43,13 @@ export function useBranding() {
             const hsl = hexToHsl(background_color);
             document.documentElement.style.setProperty('--background', hsl);
             document.documentElement.style.setProperty('--card', hsl);
-            // Ensure sidebar keeps its own background and doesn't inherit
+            // Apply background to body
+            document.body.style.backgroundColor = `hsl(${hsl})`;
+            // Preserve sidebar styling
             const sidebarElement = document.querySelector('aside');
             if (sidebarElement) {
               sidebarElement.style.backgroundColor = 'hsl(222 60% 8%) !important';
+              sidebarElement.style.color = 'hsl(210 40% 96%) !important';
             }
           }
 
@@ -57,7 +60,7 @@ export function useBranding() {
             document.documentElement.style.setProperty('--foreground', fgHsl);
             document.documentElement.style.setProperty('--card-foreground', fgHsl);
             document.documentElement.style.setProperty('--popover-foreground', fgHsl);
-            document.documentElement.style.setProperty('--sidebar-foreground', fgHsl);
+            // Don't change sidebar foreground
             document.documentElement.style.setProperty('--muted-foreground', fgMuted);
           }
         })
