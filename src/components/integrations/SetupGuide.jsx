@@ -9,44 +9,37 @@ export default function SetupGuide() {
 
 // Call this once to register your app with Beacon
 async function registerWithBeacon() {
-  try {
-    const response = await base44.functions.invoke('registerAppWithBeacon', {
-      app_name: 'YOUR_APP_NAME',
-      app_url: window.location.origin
-    });
-    
-    // Save this token securely in your environment variables
-    console.log('Integration token:', response.data.token);
-    return response.data.token;
-  } catch (error) {
-    console.error('Registration failed:', error);
-  }
+  const response = await base44.functions.invoke('registerAppWithBeacon', {
+    app_name: 'YOUR_APP_NAME',
+    app_url: window.location.origin
+  });
+  
+  // You'll get back a token like: "a1b2c3d4e5f6..."
+  console.log('Integration token:', response.data.token);
+  return response.data.token;
 }`;
 
-  const integrationEndpointCode = `// In your backend functions, create this endpoint
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+  const integrationEndpointCode = `import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 Deno.serve(async (req) => {
-  try {
-    const token = req.headers.get('authorization')?.replace('Bearer ', '');
-    const INTEGRATION_TOKEN = Deno.env.get('INTEGRATION_TOKEN');
-    
-    if (token !== INTEGRATION_TOKEN) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-    
-    const body = await req.json();
-    const { integration_id, integration_name, code } = body;
-    
-    // Store or execute the integration code
-    console.log(\`Received integration: \${integration_name}\`);
-    console.log('Code:', code);
-    
-    // Save it to a file, database, or apply it directly
-    return Response.json({ success: true });
-  } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+  // Verify the request is from Beacon using the token
+  const token = req.headers.get('authorization')?.replace('Bearer ', '');
+  const INTEGRATION_TOKEN = Deno.env.get('INTEGRATION_TOKEN');
+  
+  if (token !== INTEGRATION_TOKEN) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
+  
+  const body = await req.json();
+  const { integration_id, integration_name, code } = body;
+  
+  // Log that we received an integration from Beacon
+  console.log(\`✓ Received from Beacon: \${integration_name}\`);
+  console.log('Integration code:', code);
+  
+  // TODO: Store the code, apply it, save to database, etc.
+  
+  return Response.json({ success: true });
 });`;
 
   const copyToClipboard = (text, type) => {
@@ -88,17 +81,26 @@ Deno.serve(async (req) => {
           <div>
             <h4 className="text-sm font-semibold text-primary mb-3">Step 2: Save Your Integration Token</h4>
             <p className="text-sm text-muted-foreground mb-3">
-              The token returned in Step 1 must be saved as an environment variable:
+              The token is returned from Step 1. Save it in your target app's environment variables:
             </p>
-            <div className="bg-muted/50 border border-white/5 rounded-lg p-4">
-              <code className="text-xs text-muted-foreground">INTEGRATION_TOKEN=&lt;token_from_step_1&gt;</code>
+            <div className="bg-muted/50 border border-white/5 rounded-lg p-4 space-y-2">
+              <div>
+                <p className="text-xs font-mono text-muted-foreground">In Dashboard → Settings → Environment Variables:</p>
+              </div>
+              <code className="text-xs text-muted-foreground block">INTEGRATION_TOKEN=a1b2c3d4e5f6g7h8...</code>
             </div>
+            <p className="text-xs text-muted-foreground mt-3">
+              Replace <code className="bg-muted px-1">a1b2c3d4e5f6g7h8...</code> with the actual token from your registration step.
+            </p>
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold text-primary mb-3">Step 3: Create the Integration Receiving Endpoint</h4>
+            <h4 className="text-sm font-semibold text-primary mb-3">Step 3: Create Receiving Endpoint in Target App</h4>
             <p className="text-sm text-muted-foreground mb-3">
-              Create <code className="bg-muted px-1 py-0.5 rounded text-xs">functions/receiveIntegration.js</code> in your app:
+              In your target app (the one you want to integrate with Beacon), create this file:
+            </p>
+            <p className="text-xs bg-primary/10 text-primary border border-primary/20 rounded px-2 py-1 inline-block mb-3">
+              <code>functions/receiveIntegration.js</code>
             </p>
             <div className="relative">
               <pre className="bg-muted/50 border border-white/5 rounded-lg p-4 text-xs overflow-x-auto text-muted-foreground">
@@ -119,11 +121,17 @@ Deno.serve(async (req) => {
             </div>
           </div>
 
-          <div className="bg-accent/10 border border-accent/30 rounded-lg p-4">
-            <p className="text-sm text-accent font-medium">✓ Done!</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Your app is now ready to receive integrations from Beacon. The integration code will be sent to your endpoint, which you can then store or apply as needed.
-            </p>
+          <div className="bg-accent/10 border border-accent/30 rounded-lg p-4 space-y-3">
+            <p className="text-sm text-accent font-medium">✓ All Set!</p>
+            <div className="text-xs text-muted-foreground space-y-2">
+              <p>Your app is ready to receive integrations from Beacon. Here's the flow:</p>
+              <ol className="list-decimal list-inside space-y-1 ml-1">
+                <li><strong>Run Step 1</strong> in your target app to register with Beacon</li>
+                <li><strong>Save the token</strong> to your target app's environment variables</li>
+                <li><strong>Create the endpoint</strong> in your target app to receive integrations</li>
+                <li>When you push an integration from Beacon, it will POST to your endpoint with the code</li>
+              </ol>
+            </div>
           </div>
         </div>
       </div>
