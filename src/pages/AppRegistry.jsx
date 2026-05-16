@@ -200,8 +200,8 @@ export default function AppRegistryPage() {
             <div className="col-span-1">Category</div>
             <div className="col-span-1">Status</div>
             <div className="col-span-1">Hub</div>
-            <div className="col-span-4">Connection Prompt</div>
-            <div className="col-span-3 text-right">Actions</div>
+            <div className="col-span-5">Connection Prompt</div>
+            <div className="col-span-2 text-right">Actions</div>
           </div>
           {apps.map((app) => (
             <div key={app.id} className="grid grid-cols-12 gap-4 px-5 py-4 border-b border-white/5 last:border-0 items-center hover:bg-white/5 hover:brightness-110 transition-all duration-200">
@@ -241,7 +241,7 @@ export default function AppRegistryPage() {
                   </Button>
                 )}
               </div>
-              <div className="col-span-4">
+              <div className="col-span-5">
                 <Button
                   size="sm"
                   className="bg-accent text-accent-foreground hover:bg-accent/90 gap-1.5 text-[11px] h-7 px-2.5 truncate max-w-full"
@@ -251,7 +251,7 @@ export default function AppRegistryPage() {
                   <span className="truncate">{app.app_name} Connection Prompt – Click to Copy</span>
                 </Button>
               </div>
-              <div className="col-span-3 flex justify-end gap-1.5">
+              <div className="col-span-2 flex justify-end gap-1.5">
                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(app)}>
                   <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
                 </Button>
