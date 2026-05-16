@@ -21,6 +21,7 @@ import {
 import { Send, CheckCircle2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import PageHeader from '@/components/shared/PageHeader';
+import SetupGuide from '@/components/integrations/SetupGuide';
 
 const AVAILABLE_INTEGRATIONS = [
   { id: 'sync-app-name', name: 'App Name Sync', description: 'Auto-sync app name from Beacon hub' },
@@ -120,8 +121,10 @@ export default function AppIntegrations() {
   const selectedIntegrationName = AVAILABLE_INTEGRATIONS.find(i => i.id === selectedIntegration)?.name;
 
   return (
-    <div className="w-full">
+    <div className="w-full space-y-8">
       <PageHeader title="App Integrations" description="Push integrations to multiple apps at once" />
+
+      <SetupGuide />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Integration Selection */}
