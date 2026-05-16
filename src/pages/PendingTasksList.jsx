@@ -65,7 +65,7 @@ export default function PendingTasksList() {
   connectedApps.forEach(app => allUniqueApps.add(app));
   
   const allAppsWithCounts = Array.from(allUniqueApps)
-    .filter(a => a !== 'Beacon' && a !== 'OneDrive')
+    .filter(a => !['general', 'Beacon', 'OneDrive'].includes(a))
     .sort()
     .reduce((arr, app) => [...arr, { name: app, count: tasksByApp[app] || 0 }], [
       { name: 'general', count: tasksByApp['general'] || 0 },
@@ -73,10 +73,8 @@ export default function PendingTasksList() {
       { name: 'OneDrive', count: tasksByApp['OneDrive'] || 0 },
     ]);
 
-  // Add "Other" at the end if it has tasks
-  if (tasksByApp['Other']) {
-    allAppsWithCounts.push({ name: 'Other', count: tasksByApp['Other'] });
-  }
+  // Add "Other" as the final category
+  allAppsWithCounts.push({ name: 'Other', count: tasksByApp['Other'] || 0 });
 
   const handleStatusChange = async (taskId, newStatus) => {
     const isArchivable = newStatus === 'completed' || newStatus === 'archived';
