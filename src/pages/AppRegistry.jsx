@@ -244,11 +244,11 @@ export default function AppRegistryPage() {
               <div className="col-span-5">
                 <Button
                   size="sm"
-                  className="bg-accent text-accent-foreground hover:bg-accent/90 gap-1.5 text-[11px] h-7 px-2.5 truncate max-w-full"
+                  className="bg-accent text-accent-foreground hover:bg-accent/90 h-7 text-xs px-3"
                   onClick={() => setPromptApp(app)}
                 >
-                  <Zap className="w-3 h-3 flex-shrink-0" />
-                  <span className="truncate">{app.app_name} Connection Prompt – Click to Copy</span>
+                  <Zap className="w-3 h-3 mr-1" />
+                  Click to Copy
                 </Button>
               </div>
               <div className="col-span-2 flex justify-end gap-1.5">
