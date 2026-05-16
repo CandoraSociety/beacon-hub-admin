@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Palette, Building2, AppWindow, Rocket, Hexagon, ChevronLeft, ExternalLink } from 'lucide-react';
+import { LayoutDashboard, Palette, Building2, AppWindow, Rocket, Hexagon, ChevronLeft, ExternalLink, CheckSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { SidebarContext } from '@/lib/SidebarContext';
@@ -9,6 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 
 const navItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/pending-tasks-list', label: 'Pending Tasks', icon: CheckSquare },
   { path: '/branding', label: 'Design', icon: Palette },
   { path: '/org-profile', label: 'Org Profile', icon: Building2 },
   { path: '/app-registry', label: 'App Registry', icon: AppWindow },
