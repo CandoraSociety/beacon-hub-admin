@@ -24,7 +24,7 @@ const emptyForm = {
   app_category: 'internal',
   audience: '',
   status: 'active',
-  is_hub_connected: true,
+  is_hub_connected: false,
 };
 
 export default function AppRegistryPage() {

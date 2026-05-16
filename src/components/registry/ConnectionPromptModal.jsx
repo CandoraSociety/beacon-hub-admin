@@ -8,7 +8,9 @@ function generatePrompt(app) {
   const description = app.app_description ? `\n\nThis app is described as: "${app.app_description}".` : '';
   const audience = app.audience ? ` It serves the following audience: ${app.audience}.` : '';
 
-  return `Hi ${appName} — I need you to connect this app to our central Beacon Nexus Core hub so it can receive live branding updates automatically.
+  return `Hi ${appName} — I need you to connect this app to our central Beacon Nexus Core hub.
+
+Beacon Nexus Core is our organization's central command hub that manages unified configurations and policies across all our Base44 applications. By connecting ${appName} to the hub, it will be able to receive and sync live updates from central commands, including branding changes, configuration updates, and other organizational directives — ensuring consistency across all our apps.
 
 Here's what needs to be done:
 
