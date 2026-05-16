@@ -41,13 +41,11 @@ export function useBranding() {
           }
           if (background_color) {
             const hsl = hexToHsl(background_color);
-            document.documentElement.style.setProperty('--background', hsl);
-            document.documentElement.style.setProperty('--card', hsl);
-            // Reset sidebar to its own color
-            const sidebar = document.querySelector('aside') || document.querySelector('[class*="sidebar"]');
-            if (sidebar) {
-              sidebar.style.backgroundColor = 'hsl(var(--sidebar-background))';
-            }
+            const root = document.documentElement;
+            root.style.setProperty('--background', hsl);
+            root.style.setProperty('--card', hsl);
+            // Explicitly preserve sidebar colors
+            root.style.setProperty('--sidebar-background', 'hsl(222 60% 8%)');
           }
 
           if (foreground_color) {
