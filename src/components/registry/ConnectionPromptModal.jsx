@@ -7,6 +7,7 @@ function generatePrompt(app) {
   const appName = app.app_name || 'this app';
   const description = app.app_description ? `\n\nThis app is described as: "${app.app_description}".` : '';
   const audience = app.audience ? ` It serves the following audience: ${app.audience}.` : '';
+  const hubUrl = window.location.origin;
 
   return `Hi ${appName} — I need you to connect this app to our central Beacon Nexus Core hub.
 
@@ -63,7 +64,7 @@ export function useBranding() {
     async function fetchAndApply() {
       try {
         const appId = import.meta.env.VITE_APP_ID;
-        const hubUrl = 'https://beacon-nexus-core--fkbmrbr.base44.app';
+        const hubUrl = '${hubUrl}';
         const res = await fetch(\`\${hubUrl}/api/functions/getBranding\`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-app-id': appId },
