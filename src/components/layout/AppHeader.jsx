@@ -3,11 +3,12 @@ import { base44 } from '@/api/base44Client';
 
 export default function AppHeader() {
   const { data: configs = [] } = useQuery({
-    queryKey: ['hubConfigs', 'header'],
+    queryKey: ['hubConfigs', 'branding'],
     queryFn: async () => {
       const all = await base44.entities.HubConfig.list();
-      return all;
+      return all.filter(c => c.category === 'branding');
     },
+    refetchInterval: 30000,
   });
 
   const { data: orgProfile } = useQuery({
