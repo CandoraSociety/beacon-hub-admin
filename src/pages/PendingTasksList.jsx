@@ -59,7 +59,9 @@ export default function PendingTasksList() {
 
   // Get all unique apps from tasks and connected apps
   const allUniqueApps = new Set(['general', 'Beacon', 'OneDrive']);
-  Object.keys(tasksByApp).forEach(app => allUniqueApps.add(app));
+  Object.keys(tasksByApp).forEach(app => {
+    if (app !== 'Other') allUniqueApps.add(app);
+  });
   connectedApps.forEach(app => allUniqueApps.add(app));
   
   const allAppsWithCounts = Array.from(allUniqueApps)
@@ -70,6 +72,11 @@ export default function PendingTasksList() {
       { name: 'Beacon', count: tasksByApp['Beacon'] || 0 },
       { name: 'OneDrive', count: tasksByApp['OneDrive'] || 0 },
     ]);
+
+  // Add "Other" at the end if it has tasks
+  if (tasksByApp['Other']) {
+    allAppsWithCounts.push({ name: 'Other', count: tasksByApp['Other'] });
+  }
 
   const handleStatusChange = async (taskId, newStatus) => {
     const isArchivable = newStatus === 'completed' || newStatus === 'archived';

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,11 +17,24 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { X } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function AddTaskModal({ open, onOpenChange, onTaskAdded }) {
   const [loading, setLoading] = useState(false);
+  const [apps, setApps] = useState([]);
+  const [showCustomAppInput, setShowCustomAppInput] = useState(false);
+  const [customAppName, setCustomAppName] = useState('');
+  const [showAddCategoryDialog, setShowAddCategoryDialog] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -31,6 +44,56 @@ export default function AddTaskModal({ open, onOpenChange, onTaskAdded }) {
     category: 'feature',
     blocked_by: '',
   });
+
+  useEffect(() => {
+    if (open) {
+      fetchApps();
+    }
+  }, [open]);
+
+  const fetchApps = async () => {
+    try {
+      const tasks = await base44.entities.PendingTask.list();
+      const uniqueApps = new Set(['general', 'Beacon', 'OneDrive']);
+      tasks.forEach(task => {
+        if (task.app) uniqueApps.add(task.app);
+      });
+      setApps(Array.from(uniqueApps).sort());
+    } catch (error) {
+      console.error('Failed to fetch apps:', error);
+    }
+  };
+
+  const handleAppSelect = (value) => {
+    if (value === 'other') {
+      setShowCustomAppInput(true);
+      setFormData({ ...formData, app: '' });
+    } else {
+      setShowCustomAppInput(false);
+      setCustomAppName('');
+      setFormData({ ...formData, app: value });
+    }
+  };
+
+  const handleCustomAppSubmit = () => {
+    if (!customAppName.trim()) {
+      toast.error('Please enter an app/category name');
+      return;
+    }
+    setShowAddCategoryDialog(true);
+  };
+
+  const handleAddNewCategory = async (addToDisplay) => {
+    if (addToDisplay) {
+      setFormData({ ...formData, app: customAppName });
+    } else {
+      setFormData({ ...formData, app: 'Other' });
+    }
+    setShowCustomAppInput(false);
+    setCustomAppName('');
+    setShowAddCategoryDialog(false);
+    toast.success(`App set to "${addToDisplay ? customAppName : 'Other'}"`);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -81,13 +144,61 @@ export default function AddTaskModal({ open, onOpenChange, onTaskAdded }) {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-foreground block mb-1.5">App *</label>
-            <Input
-              placeholder="e.g., Beacon, NexusHR, Launchpad"
-              value={formData.app}
-              onChange={(e) => setFormData({ ...formData, app: e.target.value })}
-              required
-            />
+            <label className="text-sm font-medium text-foreground block mb-1.5">App/Category *</label>
+            {!showCustomAppInput ? (
+              <Select value={formData.app} onValueChange={handleAppSelect}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select an app/category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {apps.map((app) => (
+                    <SelectItem key={app} value={app}>
+                      {app}
+                    </SelectItem>
+                  ))}
+                  <SelectItem value="other">Other (Custom)</SelectItem>
+                </SelectContent>
+              </Select>
+            ) : (
+              <div className="space-y-2">
+                <Input
+                  placeholder="Enter new app/category name"
+                  value={customAppName}
+                  onChange={(e) => setCustomAppName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleCustomAppSubmit();
+                    }
+                  }}
+                  autoFocus
+                />
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={handleCustomAppSubmit}
+                    variant="default"
+                    className="flex-1"
+                  >
+                    Continue
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => {
+                      setShowCustomAppInput(false);
+                      setCustomAppName('');
+                      setFormData({ ...formData, app: '' });
+                    }}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div>
@@ -172,6 +283,25 @@ export default function AddTaskModal({ open, onOpenChange, onTaskAdded }) {
           </div>
         </form>
       </DialogContent>
+
+      <AlertDialog open={showAddCategoryDialog} onOpenChange={setShowAddCategoryDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Add New Category?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Would you like to add "{customAppName}" as a new app/category to the display?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex gap-3 justify-end">
+            <AlertDialogCancel onClick={() => handleAddNewCategory(false)}>
+              No, use "Other"
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={() => handleAddNewCategory(true)}>
+              Yes, add to display
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }
