@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Palette, Save, Plus, Trash2, Zap, Edit2, Upload, Image as ImageIcon } from 'lucide-react';
@@ -15,6 +15,7 @@ import BrandPreview from '@/components/branding/BrandPreview';
 import BrandingIntegrationGuide from '@/components/branding/BrandingIntegrationGuide';
 import { applyBrandingColors } from '@/lib/useBranding';
 import ApplyBrandingModal from '@/components/branding/ApplyBrandingModal';
+import ImageCropperModal from '@/components/branding/ImageCropperModal';
 
 export default function Branding() {
   const queryClient = useQueryClient();
@@ -24,6 +25,8 @@ export default function Branding() {
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [headerStyle, setHeaderStyle] = useState('standard');
   const [headerLogoUrl, setHeaderLogoUrl] = useState('');
+  const [cropperFile, setCropperFile] = useState(null);
+  const fileInputRef = useRef(null);
 
   const { data: configs = [], isLoading } = useQuery({
     queryKey: ['hubConfigs', 'branding'],
@@ -198,37 +201,21 @@ export default function Branding() {
             <Label className="text-xs">Header Logo</Label>
             <div className="flex items-center gap-2 mt-1">
               {headerLogoUrl && (
-                <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center border border-white/10">
-                  <ImageIcon className="w-5 h-5 text-primary" />
+                <div className="w-12 h-12 rounded-lg bg-white/5 flex items-center justify-center border border-white/10 overflow-hidden">
+                  <img src={headerLogoUrl} alt="Logo" className="w-full h-full object-cover" />
                 </div>
               )}
               <label className="flex-1 px-4 py-2 border border-white/10 rounded-md hover:bg-white/5 transition-colors cursor-pointer flex items-center gap-2">
                 <Upload className="w-3.5 h-3.5 text-muted-foreground" />
                 <span className="text-xs text-muted-foreground">Upload Logo</span>
                 <input
+                  ref={fileInputRef}
                   type="file"
                   accept="image/*"
-                  onChange={async (e) => {
+                  onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      try {
-                        const reader = new FileReader();
-                        reader.onload = async (event) => {
-                          const { file_url } = await base44.integrations.Core.UploadFile({ file: event.target.result });
-                          setHeaderLogoUrl(file_url);
-                          const existing = configs.find(c => c.key === 'header_logo_url');
-                          if (existing) {
-                            updateMutation.mutate({ id: existing.id, data: { value: file_url } });
-                          } else {
-                            createMutation.mutate({ key: 'header_logo_url', value: file_url, description: 'Header logo URL', category: 'branding' });
-                          }
-                          toast.success('Logo saved');
-                        };
-                        reader.onerror = () => toast.error('Failed to read file');
-                        reader.readAsDataURL(file);
-                      } catch (err) {
-                        toast.error('Failed to upload logo');
-                      }
+                      setCropperFile(file);
                     }
                   }}
                   className="hidden"
@@ -373,6 +360,30 @@ export default function Branding() {
         )}
       </div>
       {showApplyModal && <ApplyBrandingModal onClose={() => setShowApplyModal(false)} headerStyle={headerStyle} headerLogoUrl={headerLogoUrl} />}
+
+      {cropperFile && (
+        <ImageCropperModal
+          imageFile={cropperFile}
+          onCancel={() => setCropperFile(null)}
+          onCrop={async (blob) => {
+            try {
+              const { file_url } = await base44.integrations.Core.UploadFile({ file: blob });
+              setHeaderLogoUrl(file_url);
+              const existing = configs.find(c => c.key === 'header_logo_url');
+              if (existing) {
+                updateMutation.mutate({ id: existing.id, data: { value: file_url } });
+              } else {
+                createMutation.mutate({ key: 'header_logo_url', value: file_url, description: 'Header logo URL', category: 'branding' });
+              }
+              toast.success('Logo uploaded');
+              setCropperFile(null);
+              if (fileInputRef.current) fileInputRef.current.value = '';
+            } catch (err) {
+              toast.error('Failed to upload logo');
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
