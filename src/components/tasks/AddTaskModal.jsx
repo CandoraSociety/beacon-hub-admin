@@ -177,7 +177,7 @@ export default function AddTaskModal({ open, onOpenChange, onTaskAdded }) {
                 <SelectTrigger>
                   <SelectValue placeholder="Select an app/category" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="max-h-[300px] overflow-y-auto">
                   {apps.map((app) => (
                     <SelectItem key={app} value={app}>
                       {app}
