@@ -50,8 +50,13 @@ Deno.serve(async (req) => {
 
   return (
     <div className="space-y-8">
+      <div className="bg-primary/10 border border-primary/30 rounded-xl p-6">
+        <h3 className="text-lg font-semibold text-foreground mb-2">📋 For Your TARGET APP (not Beacon)</h3>
+        <p className="text-sm text-muted-foreground">These steps run in the app you want to integrate. Beacon will push integrations to it.</p>
+      </div>
+
       <div className="bg-card border border-white/5 rounded-xl p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Setup Instructions for Target Apps</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-4">Setup Instructions</h3>
         
         <div className="space-y-6">
           <div>
