@@ -1,5 +1,12 @@
 import { useEffect } from 'react';
 
+function getLuminance(hex) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+}
+
 function hexToHsl(hex) {
   let r = parseInt(hex.slice(1, 3), 16) / 255;
   let g = parseInt(hex.slice(3, 5), 16) / 255;
@@ -20,7 +27,7 @@ export function useBranding() {
     const apply = () => {
       fetch('https://beacon-nexus-core.base44.app/functions/getBranding')
         .then(r => r.json())
-        .then(({ primary_color, secondary_color, background_color }) => {
+        .then(({ primary_color, secondary_color, background_color, foreground_color }) => {
           if (primary_color) {
             const hsl = hexToHsl(primary_color);
             document.documentElement.style.setProperty('--primary', hsl);
@@ -36,6 +43,16 @@ export function useBranding() {
             const hsl = hexToHsl(background_color);
             document.documentElement.style.setProperty('--background', hsl);
             document.documentElement.style.setProperty('--card', hsl);
+          }
+          if (foreground_color) {
+            const fgHsl = hexToHsl(foreground_color);
+            const isLight = getLuminance(background_color) > 0.5;
+            const fgMuted = isLight ? '215 15% 40%' : '215 20% 55%';
+            document.documentElement.style.setProperty('--foreground', fgHsl);
+            document.documentElement.style.setProperty('--card-foreground', fgHsl);
+            document.documentElement.style.setProperty('--popover-foreground', fgHsl);
+            document.documentElement.style.setProperty('--sidebar-foreground', fgHsl);
+            document.documentElement.style.setProperty('--muted-foreground', fgMuted);
           }
         })
         .catch(() => {});

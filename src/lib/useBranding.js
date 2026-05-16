@@ -20,6 +20,13 @@ function hexToHsl(hex) {
   return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
 }
 
+function getLuminance(hex) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+}
+
 export function applyBrandingColors(primary_color, secondary_color, background_color) {
   if (primary_color) {
     const hsl = hexToHsl(primary_color);
@@ -36,6 +43,15 @@ export function applyBrandingColors(primary_color, secondary_color, background_c
     const hsl = hexToHsl(background_color);
     document.documentElement.style.setProperty('--background', hsl);
     document.documentElement.style.setProperty('--card', hsl);
+    // Auto-set foreground based on background luminance
+    const isLight = getLuminance(background_color) > 0.5;
+    const fg = isLight ? '222 20% 10%' : '210 40% 96%';
+    const fgMuted = isLight ? '215 15% 40%' : '215 20% 55%';
+    document.documentElement.style.setProperty('--foreground', fg);
+    document.documentElement.style.setProperty('--card-foreground', fg);
+    document.documentElement.style.setProperty('--popover-foreground', fg);
+    document.documentElement.style.setProperty('--sidebar-foreground', fg);
+    document.documentElement.style.setProperty('--muted-foreground', fgMuted);
   }
 }
 

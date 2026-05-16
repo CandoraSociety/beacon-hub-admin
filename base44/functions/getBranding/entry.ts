@@ -10,9 +10,17 @@ const FALLBACK = {
   primary_color: '#005696',
   secondary_color: '#FFD100',
   background_color: null,
+  foreground_color: null,
   font_family: null,
   logo_url: null,
 };
+
+function getLuminance(hex) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -26,10 +34,16 @@ Deno.serve(async (req) => {
 
     const get = (key) => configs.find(c => c.key === key)?.value || null;
 
+    const background_color = get('brand_background_color') || FALLBACK.background_color;
+    const foreground_color = background_color
+      ? (getLuminance(background_color) > 0.5 ? '#1a1f2e' : '#f0f4f8')
+      : null;
+
     return Response.json({
       primary_color: get('brand_primary_color') || FALLBACK.primary_color,
       secondary_color: get('brand_secondary_color') || FALLBACK.secondary_color,
-      background_color: get('brand_background_color') || FALLBACK.background_color,
+      background_color,
+      foreground_color,
       font_family: get('brand_font_family') || FALLBACK.font_family,
       logo_url: get('brand_logo_url') || FALLBACK.logo_url,
     }, { headers: CORS_HEADERS });
