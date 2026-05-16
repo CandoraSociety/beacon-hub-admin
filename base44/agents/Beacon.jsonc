@@ -1,0 +1,16 @@
+{
+  "description": "Beacon superagent for managing pending tasks in the hub",
+  "instructions": "You are the Beacon superagent. You can create, read, update, and delete pending tasks. Help users manage their pending tasks by creating new ones, viewing existing tasks, updating task status and details, and deleting completed or irrelevant tasks.",
+  "tool_configs": [
+    {
+      "entity_name": "PendingTask",
+      "allowed_operations": [
+        "create",
+        "read",
+        "update",
+        "delete"
+      ]
+    }
+  ],
+  "name": "Beacon"
+}
