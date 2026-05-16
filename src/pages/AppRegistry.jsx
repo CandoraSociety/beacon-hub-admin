@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import PageHeader from '@/components/shared/PageHeader';
 import { toast } from 'sonner';
 import ConnectionPromptModal from '@/components/registry/ConnectionPromptModal';
+import ConfirmConnectionDialog from '@/components/registry/ConfirmConnectionDialog';
 
 const statusStyles = {
   active: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
@@ -36,6 +37,7 @@ export default function AppRegistryPage() {
   const [saving, setSaving] = useState(false);
   const [promptApp, setPromptApp] = useState(null);
   const [lastSavedApp, setLastSavedApp] = useState(null);
+  const [confirmingApp, setConfirmingApp] = useState(null);
 
   async function loadApps() {
     setLoading(true);
@@ -229,10 +231,14 @@ export default function AppRegistryPage() {
                     <span className="text-xs">Connected</span>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-1.5 text-amber-400">
-                    <WifiOff className="w-3.5 h-3.5" />
-                    <span className="text-xs">Not connected</span>
-                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-6 text-[11px] px-2 border-amber-500/40 text-amber-400 hover:bg-amber-500/10"
+                    onClick={() => setConfirmingApp(app)}
+                  >
+                    Confirm Connection Status
+                  </Button>
                 )}
               </div>
               <div className="col-span-3">
@@ -260,12 +266,24 @@ export default function AppRegistryPage() {
       )}
 
       {promptApp && (
-        <ConnectionPromptModal
-          app={promptApp}
-          onClose={() => { setPromptApp(null); setLastSavedApp(null); }}
-          isPostSave={!!lastSavedApp}
-        />
-      )}
+         <ConnectionPromptModal
+           app={promptApp}
+           onClose={() => { setPromptApp(null); setLastSavedApp(null); }}
+           isPostSave={!!lastSavedApp}
+         />
+       )}
+
+       {confirmingApp && (
+         <ConfirmConnectionDialog
+           app={confirmingApp}
+           onConfirm={async () => {
+             await AppRegistry.update(confirmingApp.id, { is_hub_connected: true });
+             setConfirmingApp(null);
+             loadApps();
+           }}
+           onCancel={() => setConfirmingApp(null)}
+         />
+       )}
     </div>
   );
 }
