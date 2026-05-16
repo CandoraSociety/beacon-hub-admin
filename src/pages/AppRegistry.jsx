@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AppRegistry } from '@/api/entities';
-import { AppWindow, Wifi, WifiOff, Pencil, Trash2, ExternalLink, Plus, X, Save } from 'lucide-react';
+import { AppWindow, Wifi, WifiOff, Pencil, Trash2, ExternalLink, Plus, X, Save, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import PageHeader from '@/components/shared/PageHeader';
 import { toast } from 'sonner';
+import ConnectionPromptModal from '@/components/registry/ConnectionPromptModal';
 
 const statusStyles = {
   active: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
@@ -34,6 +35,7 @@ export default function AppRegistryPage() {
   const [editingApp, setEditingApp] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [promptApp, setPromptApp] = useState(null);
 
   async function loadApps() {
     setLoading(true);
@@ -226,6 +228,15 @@ export default function AppRegistryPage() {
                 )}
               </div>
               <div className="col-span-2 flex justify-end gap-1.5">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  title="Get hub connection prompt"
+                  onClick={() => setPromptApp(app)}
+                >
+                  <Zap className="w-3.5 h-3.5 text-accent" />
+                </Button>
                 {app.app_url && (
                   <Button variant="ghost" size="icon" className="h-7 w-7" asChild>
                     <a href={app.app_url} target="_blank" rel="noopener noreferrer">
@@ -243,6 +254,10 @@ export default function AppRegistryPage() {
             </div>
           ))}
         </div>
+      )}
+
+      {promptApp && (
+        <ConnectionPromptModal app={promptApp} onClose={() => setPromptApp(null)} />
       )}
     </div>
   );
