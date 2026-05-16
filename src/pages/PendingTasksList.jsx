@@ -73,10 +73,8 @@ export default function PendingTasksList() {
       { name: 'OneDrive', count: tasksByApp['OneDrive'] || 0 },
     ]);
 
-  // Add "Other" at the end if it has tasks
-  if (tasksByApp['Other']) {
-    allAppsWithCounts.push({ name: 'Other', count: tasksByApp['Other'] });
-  }
+  // Replace last item with "Other" for uncategorized tasks
+  allAppsWithCounts[allAppsWithCounts.length - 1] = { name: 'Other', count: tasksByApp['Other'] || 0 };
 
   const handleStatusChange = async (taskId, newStatus) => {
     const isArchivable = newStatus === 'completed' || newStatus === 'archived';
