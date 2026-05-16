@@ -63,11 +63,10 @@ export function useBranding() {
   useEffect(() => {
     async function fetchAndApply() {
       try {
-        const appId = import.meta.env.VITE_APP_ID;
         const hubUrl = '${hubUrl}';
-        const res = await fetch(\`\${hubUrl}/api/functions/getBranding\`, {
+        const res = await fetch(\`\${hubUrl}/functions/getBranding\`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-app-id': appId },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({}),
         });
         if (!res.ok) return;
