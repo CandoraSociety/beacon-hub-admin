@@ -1,0 +1,40 @@
+{
+  "name": "AuditRun",
+  "type": "object",
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the audit ran"
+    },
+    "triggered_by": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "manual"
+      ],
+      "description": "How the audit was triggered"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "running",
+        "completed",
+        "failed"
+      ],
+      "description": "Current audit status"
+    },
+    "results": {
+      "type": "object",
+      "description": "Audit results by app (app_slug -> {status, issues, integrations, automations})"
+    },
+    "summary": {
+      "type": "string",
+      "description": "Summary of audit findings"
+    }
+  },
+  "required": [
+    "timestamp",
+    "triggered_by"
+  ]
+}

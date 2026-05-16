@@ -14,6 +14,7 @@ import Branding from '@/pages/Branding';
 import OrgProfile from '@/pages/OrgProfile';
 import AppRegistry from '@/pages/AppRegistry';
 import NewAppLauncher from '@/pages/NewAppLauncher';
+import Permissions from '@/pages/Permissions';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -44,6 +45,7 @@ const AuthenticatedApp = () => {
         <Route path="/org-profile" element={<OrgProfile />} />
         <Route path="/app-registry" element={<AppRegistry />} />
         <Route path="/new-app" element={<NewAppLauncher />} />
+        <Route path="/permissions" element={<Permissions />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

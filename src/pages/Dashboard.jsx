@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 import { AppRegistry, OrgProfile, UserAccessLevel } from '@/api/entities';
-import { Palette, Building2, AppWindow, Rocket, Wifi, ArrowRight, MessageCircle, X, Users, Bot } from 'lucide-react';
+import { Palette, Building2, AppWindow, Rocket, Wifi, ArrowRight, MessageCircle, X, Users, Bot, AlertCircle, Zap } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 import PageHeader from '@/components/shared/PageHeader';
 import StatCard from '@/components/shared/StatCard';
 
@@ -9,7 +13,7 @@ const quickLinks = [
   { path: '/branding', label: 'Design', description: 'Manage colors & visual identity', icon: Palette },
   { path: '/org-profile', label: 'Org Profile', description: 'Edit organization details', icon: Building2 },
   { path: '/app-registry', label: 'App Registry', description: 'Manage connected applications', icon: AppWindow },
-  { path: '/new-app', label: 'Launch New App', description: 'Generate app starter prompt', icon: Rocket },
+  { path: '/permissions', label: 'Permissions', description: 'Manage access level clusters', icon: Users },
 ];
 
 export default function Dashboard() {
@@ -17,6 +21,22 @@ export default function Dashboard() {
   const [org, setOrg] = useState(null);
   const [stats, setStats] = useState({ total: 0, connected: 0, accessLevels: 0, superagents: 0 });
   const [loading, setLoading] = useState(true);
+  const [auditRunning, setAuditRunning] = useState(false);
+
+  const { data: pendingTasks = [] } = useQuery({
+    queryKey: ['pendingTasks'],
+    queryFn: () => base44.entities.PendingTask.list(),
+    enabled: !loading,
+  });
+
+  const { data: lastAudit } = useQuery({
+    queryKey: ['lastAudit'],
+    queryFn: async () => {
+      const audits = await base44.entities.AuditRun.list();
+      return audits.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0] || null;
+    },
+    enabled: !loading,
+  });
 
   useEffect(() => {
     async function loadData() {
@@ -42,6 +62,22 @@ export default function Dashboard() {
     }
     loadData();
   }, []);
+
+  const handleRunAudit = async () => {
+    setAuditRunning(true);
+    try {
+      await base44.functions.invoke('runAudit', { triggered_by: 'manual' });
+      toast.success('Audit completed');
+      // Refetch audit results
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } catch (error) {
+      toast.error('Audit failed: ' + error.message);
+    } finally {
+      setAuditRunning(false);
+    }
+  };
 
   return (
     <div className="w-full">
@@ -118,6 +154,52 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* Pending Tasks */}
+      {pendingTasks.length > 0 && (
+        <div className="bg-card border border-white/5 rounded-xl p-6 mb-8 shadow-md shadow-black/20">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-destructive/20 flex items-center justify-center">
+                <AlertCircle className="w-5 h-5 text-destructive" />
+              </div>
+              <h3 className="text-sm font-semibold text-foreground">Pending Tasks ({pendingTasks.length})</h3>
+            </div>
+          </div>
+          <div className="space-y-2 max-h-48 overflow-y-auto">
+            {pendingTasks.slice(0, 5).map((task) => (
+              <div key={task.id} className="flex items-start gap-3 p-3 bg-secondary/30 rounded-lg">
+                <div className="flex-1 min-w-0 pt-0.5">
+                  <p className="text-xs font-medium text-foreground">{task.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{task.app}</p>
+                </div>
+                <span className={`text-xs px-2 py-1 rounded whitespace-nowrap flex-shrink-0 ${task.priority === 'high' ? 'bg-destructive/20 text-destructive' : task.priority === 'medium' ? 'bg-accent/20 text-accent' : 'bg-muted text-muted-foreground'}`}>
+                  {task.priority}
+                </span>
+              </div>
+            ))}
+          </div>
+          {pendingTasks.length > 5 && (
+            <p className="text-xs text-muted-foreground mt-3">+{pendingTasks.length - 5} more</p>
+          )}
+        </div>
+      )}
+
+      {/* System Audit */}
+      <div className="bg-card border border-white/5 rounded-xl p-6 mb-8 shadow-md shadow-black/20">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">System Audit</h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              {lastAudit ? `Last audit: ${new Date(lastAudit.timestamp).toLocaleDateString()} at ${new Date(lastAudit.timestamp).toLocaleTimeString()}` : 'No audit run yet'}
+            </p>
+          </div>
+          <Button size="sm" onClick={handleRunAudit} disabled={auditRunning} variant="outline">
+            <Zap className="w-3.5 h-3.5 mr-1.5" />
+            {auditRunning ? 'Running...' : 'Run Audit'}
+          </Button>
+        </div>
+      </div>
 
       {/* Quick Access */}
       <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Quick Access</h3>

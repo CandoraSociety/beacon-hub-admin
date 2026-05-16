@@ -1,0 +1,59 @@
+{
+  "name": "PendingTask",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Task title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of the pending task"
+    },
+    "app": {
+      "type": "string",
+      "description": "App this task is related to (e.g., 'Beacon', 'NexusHR', 'OneDrive')"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "blocked",
+        "completed"
+      ],
+      "default": "pending",
+      "description": "Current status of the task"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium",
+      "description": "Priority level"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "integration",
+        "infrastructure",
+        "decision",
+        "feature",
+        "bug",
+        "other"
+      ],
+      "description": "Type of pending task"
+    },
+    "blocked_by": {
+      "type": "string",
+      "description": "What's blocking this task (if any)"
+    }
+  },
+  "required": [
+    "title",
+    "app"
+  ]
+}
