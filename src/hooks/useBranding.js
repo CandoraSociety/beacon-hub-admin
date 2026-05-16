@@ -43,15 +43,10 @@ export function useBranding() {
             const hsl = hexToHsl(background_color);
             document.documentElement.style.setProperty('--background', hsl);
             document.documentElement.style.setProperty('--card', hsl);
-            // Apply background only to main, not to the entire page
-            const mainElement = document.querySelector('main');
-            if (mainElement) {
-              mainElement.style.backgroundColor = `hsl(${hsl})`;
-            }
-            // Ensure sidebar keeps its own background
+            // Ensure sidebar keeps its own background and doesn't inherit
             const sidebarElement = document.querySelector('aside');
             if (sidebarElement) {
-              sidebarElement.style.backgroundColor = 'hsl(222 60% 8%)';
+              sidebarElement.style.backgroundColor = 'hsl(222 60% 8%) !important';
             }
           }
 
