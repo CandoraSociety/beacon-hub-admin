@@ -109,7 +109,7 @@ That's it. Once these steps are complete, **${appName}** will automatically rece
 If you run into any issues during setup, check that the hub URL in the hook matches the published URL of the Beacon Nexus Core app exactly.`;
 }
 
-export default function ConnectionPromptModal({ app, onClose }) {
+export default function ConnectionPromptModal({ app, onClose, isPostSave = false }) {
   const [copied, setCopied] = useState(false);
   const prompt = generatePrompt(app);
 
@@ -131,13 +131,23 @@ export default function ConnectionPromptModal({ app, onClose }) {
             </div>
             <div>
               <h3 className="text-sm font-semibold text-foreground">Hub Connection Prompt</h3>
-              <p className="text-xs text-muted-foreground">Paste this into the Base44 chat for <span className="text-foreground font-medium">{app.app_name}</span></p>
+              <p className="text-xs text-muted-foreground">For <span className="text-foreground font-medium">{app.app_name}</span></p>
             </div>
           </div>
           <button onClick={onClose} className="p-1.5 hover:bg-secondary rounded-lg transition-colors">
             <X className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>
+
+        {/* Post-save onboarding banner */}
+        {isPostSave && (
+          <div className="mx-6 mt-4 p-4 bg-accent/10 border border-accent/25 rounded-xl flex-shrink-0">
+            <p className="text-xs font-semibold text-accent mb-1">App saved! One more step to connect it.</p>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              To connect <span className="text-foreground font-medium">{app.app_name}</span> to Beacon Hub and enable live branding updates, copy the prompt below and paste it into that app's Base44 chat. The AI will set everything up automatically.
+            </p>
+          </div>
+        )}
 
         {/* Prompt content */}
         <div className="flex-1 overflow-y-auto px-6 py-4">
@@ -151,7 +161,7 @@ export default function ConnectionPromptModal({ app, onClose }) {
           <Button variant="outline" size="sm" onClick={onClose}>Close</Button>
           <Button size="sm" onClick={handleCopy}>
             {copied ? <CheckCheck className="w-3.5 h-3.5 mr-1.5" /> : <Copy className="w-3.5 h-3.5 mr-1.5" />}
-            {copied ? 'Copied!' : 'Copy Prompt'}
+            {copied ? 'Copied!' : 'Click to copy connection prompt'}
           </Button>
         </div>
       </div>

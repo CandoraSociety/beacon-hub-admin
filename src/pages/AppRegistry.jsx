@@ -36,6 +36,7 @@ export default function AppRegistryPage() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [promptApp, setPromptApp] = useState(null);
+  const [lastSavedApp, setLastSavedApp] = useState(null);
 
   async function loadApps() {
     setLoading(true);
@@ -72,12 +73,17 @@ export default function AppRegistryPage() {
     if (editingApp) {
       await AppRegistry.update(editingApp.id, form);
       toast.success('App updated');
+      setSaving(false);
+      setShowForm(false);
     } else {
+      const saved = form;
       await AppRegistry.create(form);
       toast.success('App added');
+      setSaving(false);
+      setShowForm(false);
+      setLastSavedApp(saved);
+      setPromptApp(saved);
     }
-    setSaving(false);
-    setShowForm(false);
     loadApps();
   }
 
@@ -114,18 +120,9 @@ export default function AppRegistryPage() {
               <Label className="text-xs">App Name *</Label>
               <Input className="mt-1" placeholder="e.g. CRM App" value={form.app_name} onChange={e => setForm({ ...form, app_name: e.target.value })} />
             </div>
-            <div className="flex flex-col justify-end">
-              <Label className="text-xs mb-1">Hub Connection Setup</Label>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="border-accent/40 text-accent hover:bg-accent/10 hover:text-accent gap-2 w-full justify-start"
-                onClick={() => form.app_name.trim() ? setPromptApp(form) : toast.error('Enter an app name first')}
-              >
-                <Zap className="w-3.5 h-3.5" />
-                Get connection prompt — paste into your app's chat
-              </Button>
+            <div>
+              <Label className="text-xs">App URL</Label>
+              <Input className="mt-1" placeholder="https://..." value={form.app_url} onChange={e => setForm({ ...form, app_url: e.target.value })} />
             </div>
             <div>
               <Label className="text-xs">Category</Label>
@@ -179,6 +176,27 @@ export default function AppRegistryPage() {
               <Save className="w-3.5 h-3.5 mr-1.5" /> {saving ? 'Saving...' : 'Save App'}
             </Button>
           </div>
+        </div>
+      )}
+
+      {/* Connect Prompt CTA */}
+      {!loading && apps.length > 0 && (
+        <div className="mb-4 p-4 bg-accent/5 border border-accent/20 rounded-xl">
+          <div className="flex flex-wrap items-center gap-2">
+            {apps.map(app => (
+              <Button
+                key={app.id}
+                variant="outline"
+                size="sm"
+                className="border-accent/40 text-accent hover:bg-accent/10 hover:text-accent gap-1.5"
+                onClick={() => setPromptApp(app)}
+              >
+                <Zap className="w-3 h-3" />
+                {app.app_name}
+              </Button>
+            ))}
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-2">Click an app above to copy its connection prompt — paste into that app's chat to connect it to Beacon Hub</p>
         </div>
       )}
 
@@ -257,7 +275,11 @@ export default function AppRegistryPage() {
       )}
 
       {promptApp && (
-        <ConnectionPromptModal app={promptApp} onClose={() => setPromptApp(null)} />
+        <ConnectionPromptModal
+          app={promptApp}
+          onClose={() => { setPromptApp(null); setLastSavedApp(null); }}
+          isPostSave={!!lastSavedApp}
+        />
       )}
     </div>
   );
