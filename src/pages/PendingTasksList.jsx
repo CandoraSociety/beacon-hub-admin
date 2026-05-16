@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { AlertCircle, CheckCircle2, Clock, Zap, Archive } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Clock, Zap, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -10,11 +10,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import PageHeader from '@/components/shared/PageHeader';
+import AddTaskModal from '@/components/tasks/AddTaskModal';
 
 export default function PendingTasksList() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showArchived, setShowArchived] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     async function fetchTasks() {
@@ -105,14 +107,26 @@ export default function PendingTasksList() {
               : `${activeTasks.length} active task${activeTasks.length !== 1 ? 's' : ''}`}
           </p>
         </div>
-        <Button 
-          variant={showArchived ? 'default' : 'outline'} 
-          onClick={() => setShowArchived(!showArchived)}
-          size="sm"
-        >
-          {showArchived ? 'Show Active' : 'Show Archived'}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={() => setModalOpen(true)}
+            size="sm"
+            className="gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Add Task
+          </Button>
+          <Button 
+            variant={showArchived ? 'default' : 'outline'} 
+            onClick={() => setShowArchived(!showArchived)}
+            size="sm"
+          >
+            {showArchived ? 'Show Active' : 'Show Archived'}
+          </Button>
+        </div>
       </div>
+
+      <AddTaskModal open={modalOpen} onOpenChange={setModalOpen} onTaskAdded={() => {}} />
 
       {!showArchived && activeTasks.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-8">
