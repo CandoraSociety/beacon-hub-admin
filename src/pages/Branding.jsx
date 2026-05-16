@@ -80,7 +80,7 @@ export default function Branding() {
 
   // Returns black or white depending on which has better contrast against a hex bg
   const getContrastColor = (hex) => {
-    if (!hex) return '#ffffff';
+    if (!hex) return null;
     const r = parseInt(hex.slice(1, 3), 16);
     const g = parseInt(hex.slice(3, 5), 16);
     const b = parseInt(hex.slice(5, 7), 16);
@@ -127,8 +127,8 @@ export default function Branding() {
             >
               {!hasColor && <div className="absolute inset-0 bg-card" />}
               <div className="relative z-10">
-                <p className="text-xs font-medium" style={{ color: hasColor ? contrastText : undefined, opacity: 0.75 }}>{label}</p>
-                <p className="text-sm font-mono font-semibold mt-1" style={{ color: hasColor ? contrastText : undefined }}>{value || 'Not set'}</p>
+                <p className="text-xs font-medium" style={{ color: contrastText ? (contrastText === '#000000' ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.75)') : undefined }}>{label}</p>
+                <p className="text-sm font-mono font-semibold mt-1" style={{ color: contrastText ?? undefined }}>{value || 'Not set'}</p>
               </div>
               <input
                 type="color"
