@@ -8,17 +8,48 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { app_ids } = await req.json();
+    const { app_ids, header_style, header_logo_url } = await req.json();
 
     // Get current branding config
     const configs = await base44.asServiceRole.entities.HubConfig.filter({ category: 'branding' });
     const get = (key) => configs.find(c => c.key === key)?.value || null;
+
+    // Save header settings to HubConfig if provided
+    if (header_style) {
+      const existing = configs.find(c => c.key === 'header_style');
+      if (existing) {
+        await base44.asServiceRole.entities.HubConfig.update(existing.id, { value: header_style });
+      } else {
+        await base44.asServiceRole.entities.HubConfig.create({
+          key: 'header_style',
+          value: header_style,
+          category: 'branding',
+          description: 'Global header display style',
+        });
+      }
+    }
+
+    if (header_logo_url) {
+      const existing = configs.find(c => c.key === 'header_logo_url');
+      if (existing) {
+        await base44.asServiceRole.entities.HubConfig.update(existing.id, { value: header_logo_url });
+      } else {
+        await base44.asServiceRole.entities.HubConfig.create({
+          key: 'header_logo_url',
+          value: header_logo_url,
+          category: 'branding',
+          description: 'Global header logo URL',
+        });
+      }
+    }
 
     const branding = {
       primary_color: get('brand_primary_color'),
       secondary_color: get('brand_secondary_color'),
       font_family: get('brand_font_family'),
       logo_url: get('brand_logo_url'),
+      header_style,
+      header_logo_url,
     };
 
     // Get the selected apps
