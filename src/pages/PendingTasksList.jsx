@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { AlertCircle, CheckCircle2, Clock, Zap } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Clock, Zap, Archive } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import PageHeader from '@/components/shared/PageHeader';
 
 export default function PendingTasksList() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showCompleted, setShowCompleted] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
 
   useEffect(() => {
     async function fetchTasks() {
@@ -21,11 +28,45 @@ export default function PendingTasksList() {
       }
     }
     fetchTasks();
+
+    // Subscribe to real-time updates
+    const unsubscribe = base44.entities.PendingTask.subscribe((event) => {
+      fetchTasks();
+    });
+
+    return unsubscribe;
   }, []);
 
-  const displayedTasks = showCompleted 
-    ? tasks 
-    : tasks.filter(t => t.status !== 'completed');
+  const activeTasks = tasks.filter(t => !t.archived);
+  const archivedTasks = tasks.filter(t => t.archived);
+  const displayedTasks = showArchived ? archivedTasks : activeTasks;
+
+  // Group active tasks by app
+  const tasksByApp = activeTasks.reduce((acc, task) => {
+    const app = task.app || 'general';
+    if (!acc[app]) acc[app] = 0;
+    acc[app]++;
+    return acc;
+  }, {});
+
+  const handleStatusChange = async (taskId, newStatus) => {
+    const isArchivable = newStatus === 'completed' || newStatus === 'archived';
+    try {
+      await base44.entities.PendingTask.update(taskId, {
+        status: newStatus,
+        archived: isArchivable ? true : false,
+      });
+      setTasks(prev =>
+        prev.map(t =>
+          t.id === taskId
+            ? { ...t, status: newStatus, archived: isArchivable }
+            : t
+        )
+      );
+    } catch (error) {
+      console.error('Failed to update task:', error);
+    }
+  };
 
   const getPriorityColor = (priority) => {
     switch (priority) {
@@ -55,17 +96,39 @@ export default function PendingTasksList() {
     <div className="w-full">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Pending Tasks</h1>
-          <p className="text-sm text-muted-foreground mt-1.5">Track all pending work items across your apps</p>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">
+            {showArchived ? 'Archived Tasks' : 'Pending Tasks'}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1.5">
+            {showArchived
+              ? `${archivedTasks.length} archived task${archivedTasks.length !== 1 ? 's' : ''}`
+              : `${activeTasks.length} active task${activeTasks.length !== 1 ? 's' : ''}`}
+          </p>
         </div>
         <Button 
-          variant={showCompleted ? 'default' : 'outline'} 
-          onClick={() => setShowCompleted(!showCompleted)}
+          variant={showArchived ? 'default' : 'outline'} 
+          onClick={() => setShowArchived(!showArchived)}
           size="sm"
         >
-          {showCompleted ? 'Hide Completed' : 'Show Completed'}
+          {showArchived ? 'Show Active' : 'Show Archived'}
         </Button>
       </div>
+
+      {!showArchived && activeTasks.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-8">
+          {Object.entries(tasksByApp)
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([app, count]) => (
+              <div
+                key={app}
+                className="bg-card border border-white/5 rounded-lg p-4 text-center hover:border-white/10 transition-colors"
+              >
+                <p className="text-xs font-semibold text-foreground uppercase tracking-wider">{app}</p>
+                <p className="text-2xl font-bold text-primary mt-2">{count}</p>
+              </div>
+            ))}
+        </div>
+      )}
 
       {loading ? (
         <div className="space-y-3">
@@ -99,6 +162,17 @@ export default function PendingTasksList() {
                   <span className={`text-xs px-2 py-1 rounded ${getPriorityColor(task.priority)}`}>
                     {task.priority}
                   </span>
+                  <Select value={task.status} onValueChange={(newStatus) => handleStatusChange(task.id, newStatus)}>
+                    <SelectTrigger className="w-32 h-8 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="in_progress">In Progress</SelectItem>
+                      <SelectItem value="blocked">Blocked</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>
