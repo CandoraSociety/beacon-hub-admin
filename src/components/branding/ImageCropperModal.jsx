@@ -13,23 +13,36 @@ export default function ImageCropperModal({ imageFile, onCancel, onCrop }) {
       const img = new Image();
       img.onload = () => {
         imgRef.current = img;
-        drawCanvas();
+        setTimeout(() => drawCanvas(), 0);
       };
       img.src = e.target.result;
     };
     reader.readAsDataURL(imageFile);
-  }, [imageFile, scale]);
+  }, [imageFile]);
 
   const drawCanvas = () => {
     const canvas = canvasRef.current;
     const img = imgRef.current;
     if (!canvas || !img) return;
 
+    const maxWidth = 300;
+    const maxHeight = 240;
+    let width = img.width;
+    let height = img.height;
+
+    if (width > maxWidth) {
+      height = (height * maxWidth) / width;
+      width = maxWidth;
+    }
+    if (height > maxHeight) {
+      width = (width * maxHeight) / height;
+      height = maxHeight;
+    }
+
+    canvas.width = width;
+    canvas.height = height;
     const ctx = canvas.getContext('2d');
-    canvas.width = img.width;
-    canvas.height = img.height;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, 0);
+    ctx.drawImage(img, 0, 0, width, height);
   };
 
   const handleCrop = () => {
