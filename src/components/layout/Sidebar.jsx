@@ -61,16 +61,14 @@ export default function Sidebar() {
             </div>
           )}
         </div>
-        {!collapsed && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setCollapsed(true)}
-            className="h-7 w-7 -mr-2"
-          >
-            <ChevronLeft className="w-4 h-4 text-muted-foreground" />
-          </Button>
-        )}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setCollapsed(!collapsed)}
+          className="h-7 w-7 -mr-2"
+        >
+          <ChevronLeft className={cn("w-4 h-4 text-muted-foreground", collapsed && "rotate-180")} />
+        </Button>
       </div>
 
       {/* Navigation */}
@@ -143,16 +141,6 @@ export default function Sidebar() {
       {/* Footer */}
       <div className="p-4 border-t border-white/5">
         {!collapsed && <p className="text-[11px] text-muted-foreground text-center">Beacon Hub v1.0</p>}
-        {collapsed && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setCollapsed(false)}
-            className="h-7 w-7 mx-auto"
-          >
-            <ChevronLeft className="w-4 h-4 text-muted-foreground rotate-180" />
-          </Button>
-        )}
       </div>
     </aside>
   );
