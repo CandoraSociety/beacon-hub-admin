@@ -7,7 +7,7 @@ function generatePrompt(app) {
   const appName = app.app_name || 'this app';
   const description = app.app_description ? `\n\nThis app is described as: "${app.app_description}".` : '';
   const audience = app.audience ? ` It serves the following audience: ${app.audience}.` : '';
-  const hubUrl = window.location.origin;
+  const hubUrl = 'https://beacon-nexus-core.base44.app';
 
   return `Hi ${appName} — I need you to connect this app to our central Beacon Nexus Core hub.
 
