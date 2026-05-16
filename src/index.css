@@ -25,8 +25,8 @@
     --accent-foreground: 0 0% 0%;
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
-    --border: 222 25% 16%;
-    --input: 222 25% 16%;
+    --border: 222 20% 18%;
+    --input: 222 20% 18%;
     --ring: 245 58% 62%;
     --chart-1: 210 100% 35%;
     --chart-2: 172 66% 50%;
@@ -87,6 +87,14 @@
   body {
     @apply bg-background text-foreground font-sans;
   }
+}
+
+/* Soft card elevation on hover */
+.card-hover {
+  @apply transition-all duration-200 border border-white/5 shadow-none;
+}
+.card-hover:hover {
+  @apply border-white/10 shadow-lg shadow-black/30 brightness-110;
 }
 
 /* Custom scrollbar */

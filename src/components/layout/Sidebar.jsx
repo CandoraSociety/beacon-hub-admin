@@ -45,11 +45,11 @@ export default function Sidebar() {
 
   return (
     <aside className={cn(
-      "fixed left-0 top-0 bottom-0 bg-card border-r border-border flex flex-col z-50 transition-all duration-300",
+      "fixed left-0 top-0 bottom-0 bg-black border-r border-white/5 flex flex-col z-50 transition-all duration-300",
       collapsed ? "w-20" : "w-64"
     )}>
       {/* Logo & Collapse */}
-      <div className="p-6 border-b border-border flex items-center justify-between">
+      <div className="p-6 border-b border-white/5 flex items-center justify-between">
         <div className={cn("flex items-center gap-3", collapsed && "justify-center w-full")}>
           <div className="w-9 h-9 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
             <Hexagon className="w-5 h-5 text-primary" />
@@ -107,7 +107,7 @@ export default function Sidebar() {
       {/* Connected Apps */}
       {connectedApps.length > 0 && (
         <div className="px-3 pb-2">
-          <div className={cn("border-t border-border pt-3 mb-1", !collapsed && "")}>
+          <div className={cn("border-t border-white/5 pt-3 mb-1", !collapsed && "")}>
             {!collapsed && (
               <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-2">Connected Apps</p>
             )}
@@ -141,7 +141,7 @@ export default function Sidebar() {
       )}
 
       {/* Footer */}
-      <div className="p-4 border-t border-border">
+      <div className="p-4 border-t border-white/5">
         {!collapsed && <p className="text-[11px] text-muted-foreground text-center">Beacon Hub v1.0</p>}
         {collapsed && (
           <Button

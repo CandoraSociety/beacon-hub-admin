@@ -56,7 +56,7 @@ export default function Dashboard() {
       ) : (
         <>
           {org && (
-            <div className="bg-card border border-border rounded-xl p-6 mb-8">
+            <div className="bg-card border border-white/5 rounded-xl p-6 mb-8 shadow-md shadow-black/20">
               <div className="flex items-center gap-4">
                 {org.org_logo_url ? (
                   <img src={org.org_logo_url} alt={org.org_name} className="w-12 h-12 rounded-lg object-cover" />
@@ -123,7 +123,7 @@ export default function Dashboard() {
       <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Quick Access</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
         {quickLinks.map(({ path, label, description, icon: Icon }) => (
-          <Link key={path} to={path} className="bg-card border border-border rounded-xl p-5 hover:border-primary/40 transition-all duration-300 group min-w-0">
+          <Link key={path} to={path} className="bg-card border border-white/5 rounded-xl p-5 hover:border-white/10 hover:shadow-lg hover:shadow-black/30 hover:brightness-110 transition-all duration-200 group min-w-0">
             <div className="flex items-center gap-4 min-w-0">
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors flex-shrink-0">
                 <Icon className="w-5 h-5 text-primary" />

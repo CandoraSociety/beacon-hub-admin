@@ -106,7 +106,7 @@ export default function Branding() {
           { key: 'brand_secondary_color', label: 'Secondary Color', value: secondaryColor },
           { key: 'brand_background_color', label: 'Background Color', value: backgroundColor },
         ].map(({ key, label, value }) => (
-          <div key={key} className="bg-card border border-border rounded-xl p-4">
+          <div key={key} className="bg-card border border-white/5 rounded-xl p-4 shadow-md shadow-black/20">
             <Label className="text-xs text-muted-foreground">{label}</Label>
             <div className="flex gap-2 mt-2 items-center">
               <input
@@ -145,13 +145,13 @@ export default function Branding() {
         {isLoading ? (
           Array(3).fill(0).map((_, i) => <Skeleton key={i} className="h-20 rounded-xl" />)
         ) : configs.length === 0 ? (
-          <div className="bg-card border border-border rounded-xl p-12 text-center">
+          <div className="bg-card border border-white/5 rounded-xl p-12 text-center shadow-md shadow-black/20">
             <Palette className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
             <p className="text-sm text-muted-foreground">No branding configs yet. Add your first one.</p>
           </div>
         ) : (
           configs.map((config) => (
-            <div key={config.id} className="bg-card border border-border rounded-xl p-5">
+            <div key={config.id} className="bg-card border border-white/5 rounded-xl p-5 shadow-md shadow-black/20 hover:border-white/10 hover:shadow-lg hover:shadow-black/30 hover:brightness-110 transition-all duration-200">
               {editingId === config.id ? (
                 <div className="space-y-3">
                   <div className="grid grid-cols-2 gap-3">
