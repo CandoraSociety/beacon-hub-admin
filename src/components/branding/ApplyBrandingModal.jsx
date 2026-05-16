@@ -5,7 +5,7 @@ import { CheckSquare, Square, Zap, X, Loader2, CheckCircle2 } from 'lucide-react
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
-export default function ApplyBrandingModal({ onClose }) {
+export default function ApplyBrandingModal({ onClose, headerStyle, headerLogoUrl }) {
   const [selected, setSelected] = useState([]);
   const [applying, setApplying] = useState(false);
   const [done, setDone] = useState(false);
@@ -49,12 +49,16 @@ export default function ApplyBrandingModal({ onClose }) {
     try {
       // Filter out the hub self-entry before sending to backend (it applies locally)
       const remoteIds = selected.filter(id => id !== HUB_SELF_ID);
-      await base44.functions.invoke('pushBranding', { app_ids: remoteIds });
+      await base44.functions.invoke('pushBranding', {
+        app_ids: remoteIds,
+        header_style: headerStyle,
+        header_logo_url: headerLogoUrl,
+      });
       setDone(true);
-      toast.success('Branding push recorded — connected apps will update within 30 seconds.');
+      toast.success('Changes applied — connected apps will update within 30 seconds.');
       setTimeout(onClose, 1800);
     } catch {
-      toast.error('Failed to push branding');
+      toast.error('Failed to apply changes');
       setApplying(false);
     }
   };
@@ -69,8 +73,8 @@ export default function ApplyBrandingModal({ onClose }) {
               <Zap className="w-4 h-4 text-primary" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-foreground">Apply Branding Changes</h2>
-              <p className="text-xs text-muted-foreground">Notify connected apps to pull the latest branding colors</p>
+             <h2 className="text-sm font-semibold text-foreground">Apply Changes</h2>
+             <p className="text-xs text-muted-foreground">Notify connected apps to pull branding and header updates</p>
             </div>
           </div>
           <button onClick={onClose} className="p-1 hover:bg-secondary rounded-lg transition-colors">

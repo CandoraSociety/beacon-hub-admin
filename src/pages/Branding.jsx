@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Palette, Save, Plus, Trash2, Zap, Edit2 } from 'lucide-react';
-import AppHeaderCustomization from '@/components/design/AppHeaderCustomization';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import PageHeader from '@/components/shared/PageHeader';
@@ -22,6 +22,8 @@ export default function Branding() {
   const [editForm, setEditForm] = useState({});
   const [newConfig, setNewConfig] = useState(null);
   const [showApplyModal, setShowApplyModal] = useState(false);
+  const [headerStyle, setHeaderStyle] = useState('standard');
+  const [headerLogoUrl, setHeaderLogoUrl] = useState('');
 
   const { data: configs = [], isLoading } = useQuery({
     queryKey: ['hubConfigs', 'branding'],
@@ -161,9 +163,30 @@ export default function Branding() {
 
       {/* App Header Customization */}
       <div className="mt-8 bg-card border border-white/5 rounded-xl p-6 shadow-md shadow-black/20">
-        <h3 className="text-sm font-semibold text-foreground mb-4">App Header Customization</h3>
-        <p className="text-xs text-muted-foreground mb-6">Configure header styles and logos for individual apps.</p>
-        <AppHeaderCustomization />
+        <h3 className="text-sm font-semibold text-foreground mb-4">App Header Settings</h3>
+        <p className="text-xs text-muted-foreground mb-6">Set default header style and logo. Apply to selected apps via "Apply Changes".</p>
+        <div className="space-y-4">
+          <div>
+            <Label className="text-xs">Header Style</Label>
+            <Select value={headerStyle} onValueChange={setHeaderStyle}>
+              <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="minimal">Minimal</SelectItem>
+                <SelectItem value="standard">Standard</SelectItem>
+                <SelectItem value="prominent">Prominent</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-xs">Header Logo URL</Label>
+            <Input
+              className="mt-1"
+              placeholder="https://example.com/logo.png"
+              value={headerLogoUrl}
+              onChange={(e) => setHeaderLogoUrl(e.target.value)}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Config List — excludes the 3 color keys managed by quick controls above */}
@@ -294,7 +317,7 @@ export default function Branding() {
           </div>
         )}
       </div>
-      {showApplyModal && <ApplyBrandingModal onClose={() => setShowApplyModal(false)} />}
+      {showApplyModal && <ApplyBrandingModal onClose={() => setShowApplyModal(false)} headerStyle={headerStyle} headerLogoUrl={headerLogoUrl} />}
     </div>
   );
 }
