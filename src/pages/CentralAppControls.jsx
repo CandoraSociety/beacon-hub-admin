@@ -84,7 +84,7 @@ export default function CentralAppControls() {
               <SelectTrigger>
                 <SelectValue placeholder="Choose an app..." />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-60 overflow-y-auto">
                 {apps.map(app => (
                   <SelectItem key={app.id} value={app.id}>{app.app_name}</SelectItem>
                 ))}
