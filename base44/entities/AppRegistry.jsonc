@@ -29,6 +29,10 @@
       "type": "string",
       "description": "URL where the app is hosted"
     },
+    "command_url": {
+      "type": "string",
+      "description": "URL of the app's receiveCommand function endpoint"
+    },
     "audience": {
       "type": "string",
       "description": "Target audience for the app"
@@ -74,27 +78,5 @@
   },
   "required": [
     "app_name"
-  ],
-  "rls": {
-    "create": {
-      "user_condition": {
-        "role": "admin"
-      }
-    },
-    "read": {
-      "user_condition": {
-        "role": "admin"
-      }
-    },
-    "update": {
-      "user_condition": {
-        "role": "admin"
-      }
-    },
-    "delete": {
-      "user_condition": {
-        "role": "admin"
-      }
-    }
-  }
+  ]
 }

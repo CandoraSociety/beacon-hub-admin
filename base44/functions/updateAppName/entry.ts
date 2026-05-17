@@ -30,10 +30,31 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Push the new name to the app via sendCommand if it has a command_url
+    const appRecord = await base44.asServiceRole.entities.AppRegistry.filter({ id: appId });
+    const app = appRecord[0];
+    let commandResult = null;
+
+    if (app && app.command_url && app.integration_token) {
+      const cmdResponse = await fetch(app.command_url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${app.integration_token}`,
+        },
+        body: JSON.stringify({
+          command: 'update_app_name',
+          payload: { app_name: newName, display_name: newName },
+        }),
+      });
+      commandResult = await cmdResponse.json();
+    }
+
     return Response.json({
       success: true,
       message: `Updated app name from "${oldName}" to "${newName}"`,
       tasksUpdated: tasksToUpdate.length,
+      commandResult,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
