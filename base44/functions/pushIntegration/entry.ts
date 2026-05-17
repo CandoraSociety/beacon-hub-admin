@@ -73,8 +73,8 @@ export function useBrandingSync() {
 `;
     }
 
-    // Send integration code to the app
-    const response = await fetch(`${app_url}/api/integrations/install`, {
+    // Send integration code to the app via its Base44 backend function
+    const response = await fetch(`${app_url}/api/functions/receiveIntegration`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
