@@ -85,32 +85,18 @@ export default function AppIntegrations() {
     const integration = AVAILABLE_INTEGRATIONS.find(i => i.id === selectedIntegration);
 
     try {
-      const appResults = await Promise.allSettled(
-        selectedApps.map(appId => {
-          const app = apps.find(a => a.id === appId);
-          return base44.functions.invoke('pushIntegration', {
-            app_id: appId,
-            app_url: app.app_url,
-            app_token: app.integration_token,
-            integration_id: selectedIntegration,
-            integration_name: integration.name,
-          });
-        })
-      );
+      const response = await base44.functions.invoke('pushIntegration', {
+        app_ids: selectedApps,
+        integration_id: selectedIntegration,
+        integration_name: integration.name,
+      });
 
-      const successful = appResults.filter(r => r.status === 'fulfilled').length;
-      const failed = appResults.filter(r => r.status === 'rejected').length;
-
-      setResults({ successful, failed, total: selectedApps.length });
+      setResults({ successful: selectedApps.length, failed: 0, total: selectedApps.length });
       
-      if (failed === 0) {
-        toast.success(`Integration applied to ${successful} app${successful !== 1 ? 's' : ''}`);
-        setSelectedIntegration('');
-        setSelectedApps([]);
-        setSelectAll(false);
-      } else {
-        toast.error(`Applied to ${successful}, failed on ${failed}`);
-      }
+      toast.success(`Integration applied to ${selectedApps.length} app${selectedApps.length !== 1 ? 's' : ''}`);
+      setSelectedIntegration('');
+      setSelectedApps([]);
+      setSelectAll(false);
     } catch (error) {
       toast.error('Error applying integration: ' + error.message);
     } finally {
