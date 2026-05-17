@@ -37,6 +37,7 @@ export default function AppIntegrations() {
   const [applying, setApplying] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [results, setResults] = useState(null);
+  const [resultDetails, setResultDetails] = useState([]);
 
   useEffect(() => {
     async function fetchApps() {
@@ -91,9 +92,11 @@ export default function AppIntegrations() {
         integration_name: integration.name,
       });
 
-      setResults({ successful: selectedApps.length, failed: 0, total: selectedApps.length });
+      const data = response.data;
+      setResults({ successful: data.results?.filter(r => r.success).length || 0, failed: data.results?.filter(r => !r.success).length || 0, total: selectedApps.length });
+      setResultDetails(data.results || []);
       
-      toast.success(`Integration applied to ${selectedApps.length} app${selectedApps.length !== 1 ? 's' : ''}`);
+      toast.success(`Integration applied: ${data.message}`);
       setSelectedIntegration('');
       setSelectedApps([]);
       setSelectAll(false);
@@ -198,7 +201,7 @@ export default function AppIntegrations() {
 
       {/* Results */}
       {results && (
-        <div className="mt-8 bg-card border border-white/5 rounded-xl p-6">
+        <div className="mt-8 bg-card border border-white/5 rounded-xl p-6 space-y-4">
           <div className="flex gap-4">
             {results.failed === 0 ? (
               <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
@@ -218,6 +221,25 @@ export default function AppIntegrations() {
               )}
             </div>
           </div>
+
+          {resultDetails.length > 0 && (
+            <div className="border-t border-white/5 pt-4">
+              <p className="text-xs font-semibold text-muted-foreground mb-2">Details by App:</p>
+              <div className="space-y-2">
+                {resultDetails.map((result, idx) => (
+                  <div key={idx} className="text-xs flex items-center gap-2">
+                    {result.success ? (
+                      <CheckCircle2 className="w-3 h-3 text-green-500" />
+                    ) : (
+                      <AlertCircle className="w-3 h-3 text-destructive" />
+                    )}
+                    <span className="text-foreground">{result.app_id}</span>
+                    {!result.success && <span className="text-destructive">— {result.error}</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
