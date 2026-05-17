@@ -416,6 +416,18 @@ export default function AppRegistryPage() {
                    </Button>
                  </div>
                </div>
+             ) : setupResult.updated.length === 0 ? (
+               <div className="space-y-3">
+                 <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                   <p className="text-xs font-medium text-amber-400">No Legacy Apps Found</p>
+                   <p className="text-xs text-muted-foreground mt-1">
+                     All your apps already have command URLs and integration tokens. They're ready to receive commands from Beacon.
+                   </p>
+                 </div>
+                 <Button size="sm" className="w-full" onClick={() => { setSetupLegacyOpen(false); setSetupResult(null); }}>
+                   Close
+                 </Button>
+               </div>
              ) : (
                <div className="space-y-4">
                  <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
