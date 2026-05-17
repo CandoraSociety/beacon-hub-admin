@@ -416,12 +416,12 @@ export default function AppRegistryPage() {
                    </Button>
                  </div>
                </div>
-             ) : setupResult.updated.length === 0 ? (
+             ) : setupResult.apps.length === 0 ? (
                <div className="space-y-3">
                  <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                   <p className="text-xs font-medium text-amber-400">No Legacy Apps Found</p>
+                   <p className="text-xs font-medium text-amber-400">No Apps Ready</p>
                    <p className="text-xs text-muted-foreground mt-1">
-                     All your apps already have command URLs and integration tokens. They're ready to receive commands from Beacon.
+                     Mark apps as "Connected to this hub" in the registry first, then run setup again.
                    </p>
                  </div>
                  <Button size="sm" className="w-full" onClick={() => { setSetupLegacyOpen(false); setSetupResult(null); }}>
@@ -431,14 +431,14 @@ export default function AppRegistryPage() {
              ) : (
                <div className="space-y-4">
                  <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                   <p className="text-xs font-medium text-emerald-400 mb-1">✓ Ready to Go</p>
+                   <p className="text-xs font-medium text-emerald-400 mb-1">✓ Implementation Guide</p>
                    <p className="text-xs text-muted-foreground">
-                     {setupResult.updated.length} app(s) have credentials. For each app below, copy the prompt and paste it into that app's AI chat.
+                     {setupResult.apps.length} app(s) need endpoints implemented. Copy the prompt for each app and paste it into that app's AI chat.
                    </p>
                  </div>
 
                  <div className="space-y-2 max-h-72 overflow-y-auto">
-                   {setupResult.updated.map((app, idx) => (
+                   {setupResult.apps.map((app, idx) => (
                      <div key={idx} className="p-4 rounded-lg bg-secondary/30 border border-white/10 space-y-3">
                        <div className="flex items-center justify-between">
                          <p className="text-sm font-medium text-foreground">{app.app_name}</p>

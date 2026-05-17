@@ -9,37 +9,19 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    // Fetch all apps
+    // Get all apps marked as hub-connected with credentials
     const allApps = await base44.entities.AppRegistry.list();
+    const hubApps = allApps.filter(app => app.is_hub_connected && app.command_url && app.integration_token);
 
-    // Filter legacy apps (missing command_url or integration_token)
-    const legacyApps = allApps.filter(app => !app.command_url || !app.integration_token);
-
-    if (legacyApps.length === 0) {
-      return Response.json({ message: 'No legacy apps to set up', updated: [] });
-    }
-
-    // Generate tokens and command URLs
-    const updated = [];
-    for (const app of legacyApps) {
-      const token = 'sk_' + Math.random().toString(36).substring(2, 32);
-      const appSlug = (app.app_name || '').toLowerCase().replace(/\s+/g, '-');
-      const commandUrl = `https://${appSlug}.example.com/api/receiveCommand`;
-
-      await base44.entities.AppRegistry.update(app.id, {
-        integration_token: token,
-        command_url: commandUrl,
-      });
-
-      updated.push({
+    return Response.json({
+      message: `Retrieved ${hubApps.length} app(s) ready for endpoint implementation`,
+      apps: hubApps.map(app => ({
         id: app.id,
         app_name: app.app_name,
-        command_url: commandUrl,
-        integration_token: token,
-      });
-    }
-
-    return Response.json({ message: `Set up ${updated.length} legacy app(s)`, updated });
+        command_url: app.command_url,
+        integration_token: app.integration_token,
+      })),
+    });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
