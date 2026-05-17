@@ -37,6 +37,8 @@ const emptyForm = {
   audience: '',
   status: 'active',
   is_hub_connected: true,
+  command_url: '',
+  integration_token: '',
 };
 
 export default function AppRegistryPage() {
@@ -77,6 +79,8 @@ export default function AppRegistryPage() {
       audience: app.audience || '',
       status: app.status || 'active',
       is_hub_connected: app.is_hub_connected ?? true,
+      command_url: app.command_url || '',
+      integration_token: app.integration_token || '',
     });
     setShowForm(true);
   }
@@ -204,6 +208,22 @@ export default function AppRegistryPage() {
           <div>
             <Label className="text-xs">Description</Label>
             <Textarea className="mt-1 h-16" placeholder="What does this app do?" value={form.app_description} onChange={e => setForm({ ...form, app_description: e.target.value })} />
+          </div>
+
+          <div className="border-t border-white/10 pt-4 mt-4">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">App Integration (optional)</p>
+            <div className="grid grid-cols-1 gap-4">
+              <div>
+                <Label className="text-xs">Command URL</Label>
+                <Input className="mt-1" placeholder="https://app.example.com/api/receiveCommand" value={form.command_url} onChange={e => setForm({ ...form, command_url: e.target.value })} />
+                <p className="text-[10px] text-muted-foreground mt-1">Endpoint where Beacon sends commands to this app</p>
+              </div>
+              <div>
+                <Label className="text-xs">Integration Token</Label>
+                <Input className="mt-1" type="password" placeholder="sk_..." value={form.integration_token} onChange={e => setForm({ ...form, integration_token: e.target.value })} />
+                <p className="text-[10px] text-muted-foreground mt-1">Secure token for authenticating command requests</p>
+              </div>
+            </div>
           </div>
 
           <div className="flex justify-end gap-2">
