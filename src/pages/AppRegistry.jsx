@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { AppRegistry } from '@/api/entities';
-import { AppWindow, Wifi, WifiOff, Pencil, Trash2, Plus, X, Save, Zap } from 'lucide-react';
+import { AppWindow, Wifi, WifiOff, Pencil, Trash2, Plus, X, Save, Zap, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -53,6 +53,9 @@ export default function AppRegistryPage() {
   const [lastSavedApp, setLastSavedApp] = useState(null);
   const [confirmingApp, setConfirmingApp] = useState(null);
   const [deletingApp, setDeletingApp] = useState(null);
+  const [setupLegacyOpen, setSetupLegacyOpen] = useState(false);
+  const [setupResult, setSetupResult] = useState(null);
+  const [setupLoading, setSetupLoading] = useState(false);
 
   async function loadApps() {
     setLoading(true);
@@ -133,15 +136,35 @@ export default function AppRegistryPage() {
     loadApps();
   }
 
+  async function handleSetupLegacy() {
+    setSetupLoading(true);
+    try {
+      const response = await base44.functions.invoke('setupLegacyApps', {});
+      setSetupResult(response.data);
+      toast.success(`Set up ${response.data.updated.length} app(s)`);
+      loadApps();
+    } catch (error) {
+      toast.error('Failed to set up legacy apps');
+      console.error(error);
+    } finally {
+      setSetupLoading(false);
+    }
+  }
+
   return (
     <div>
       <PageHeader
         title="App Registry"
         description="Register and manage all your Base44 apps. Mark which ones are connected to this hub."
         actions={
-          <Button size="sm" onClick={openAdd}>
-            <Plus className="w-4 h-4 mr-1.5" /> Add App
-          </Button>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={() => setSetupLegacyOpen(true)}>
+              <Wand2 className="w-4 h-4 mr-1.5" /> Setup Legacy Apps
+            </Button>
+            <Button size="sm" onClick={openAdd}>
+              <Plus className="w-4 h-4 mr-1.5" /> Add App
+            </Button>
+          </div>
         }
       />
 
@@ -369,6 +392,62 @@ export default function AppRegistryPage() {
              </div>
            </AlertDialogContent>
          </AlertDialog>
+       )}
+
+       {setupLegacyOpen && (
+         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+           <div className="bg-card border border-border rounded-xl max-w-lg w-full p-6 space-y-4">
+             <div className="flex items-center justify-between">
+               <h2 className="text-sm font-semibold text-foreground">Setup Legacy Apps</h2>
+               <button onClick={() => { setSetupLegacyOpen(false); setSetupResult(null); }} className="p-1 hover:bg-secondary rounded-lg transition-colors">
+                 <X className="w-4 h-4 text-muted-foreground" />
+               </button>
+             </div>
+
+             {!setupResult ? (
+               <div className="space-y-3">
+                 <p className="text-xs text-muted-foreground">
+                   This will auto-generate integration tokens and command URLs for all legacy apps (those missing these fields). Each app owner will need to implement the endpoint.
+                 </p>
+                 <div className="flex justify-end gap-2">
+                   <Button variant="outline" size="sm" onClick={() => { setSetupLegacyOpen(false); setSetupResult(null); }}>Cancel</Button>
+                   <Button size="sm" onClick={handleSetupLegacy} disabled={setupLoading}>
+                     {setupLoading ? 'Setting up...' : 'Setup Now'}
+                   </Button>
+                 </div>
+               </div>
+             ) : (
+               <div className="space-y-3">
+                 <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                   <p className="text-xs font-medium text-emerald-400 mb-2">✓ Setup Complete</p>
+                   <p className="text-xs text-muted-foreground">
+                     {setupResult.updated.length} app(s) configured. Share these details with each app owner:
+                   </p>
+                 </div>
+
+                 <div className="space-y-2 max-h-64 overflow-y-auto">
+                   {setupResult.updated.map((app, idx) => (
+                     <div key={idx} className="p-3 rounded-lg bg-muted/50 border border-white/5 space-y-1.5">
+                       <p className="text-xs font-medium text-foreground">{app.app_name}</p>
+                       <div className="text-[10px] space-y-1 font-mono text-muted-foreground">
+                         <div>
+                           <span className="text-accent">Command URL:</span> {app.command_url}
+                         </div>
+                         <div>
+                           <span className="text-accent">Token:</span> {app.integration_token}
+                         </div>
+                       </div>
+                     </div>
+                   ))}
+                 </div>
+
+                 <Button size="sm" className="w-full" onClick={() => { setSetupLegacyOpen(false); setSetupResult(null); }}>
+                   Done
+                 </Button>
+               </div>
+             )}
+           </div>
+         </div>
        )}
        </div>
        );
