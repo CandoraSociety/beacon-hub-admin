@@ -141,10 +141,9 @@ export default function AppRegistryPage() {
     try {
       const response = await base44.functions.invoke('setupLegacyApps', {});
       setSetupResult(response.data);
-      toast.success(`Set up ${response.data.updated.length} app(s)`);
       loadApps();
     } catch (error) {
-      toast.error('Failed to set up legacy apps');
+      toast.error('Failed to load apps');
       console.error(error);
     } finally {
       setSetupLoading(false);
