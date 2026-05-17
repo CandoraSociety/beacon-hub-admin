@@ -71,7 +71,7 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-3 space-y-1">
+      <nav className="p-3 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
           if (item.submenu) {
             return (
@@ -140,7 +140,7 @@ export default function Sidebar() {
       </nav>
 
       {/* Connected Apps */}
-       <div className="flex-1 px-3 pb-3 min-h-0 flex flex-col overflow-hidden">
+      <div className="flex-1 px-3 pb-3 min-h-0 flex flex-col overflow-hidden border-t border-white/5 pt-2">
          <button
            onClick={() => setChatOpen(true)}
            title={collapsed ? 'Chat with Beacon' : ''}
