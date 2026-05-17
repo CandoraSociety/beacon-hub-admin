@@ -220,8 +220,17 @@ export default function AppRegistryPage() {
               </div>
               <div>
                 <Label className="text-xs">Integration Token</Label>
-                <Input className="mt-1" type="password" placeholder="sk_..." value={form.integration_token} onChange={e => setForm({ ...form, integration_token: e.target.value })} />
-                <p className="text-[10px] text-muted-foreground mt-1">Secure token for authenticating command requests</p>
+                <div className="flex gap-2 items-end">
+                  <div className="flex-1">
+                    <Input className="mt-1" type="password" placeholder="sk_..." value={form.integration_token} onChange={e => setForm({ ...form, integration_token: e.target.value })} />
+                    <p className="text-[10px] text-muted-foreground mt-1">Secure token for authenticating command requests</p>
+                  </div>
+                  <Button size="sm" variant="outline" onClick={() => {
+                    const token = 'sk_' + Math.random().toString(36).substring(2, 32);
+                    setForm({ ...form, integration_token: token });
+                    toast.success('Token generated');
+                  }}>Generate</Button>
+                </div>
               </div>
             </div>
           </div>
