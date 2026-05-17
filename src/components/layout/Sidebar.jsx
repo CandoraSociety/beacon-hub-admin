@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Palette, Building2, AppWindow, Rocket, Hexagon, ChevronLeft, ExternalLink, CheckSquare, MessageCircle, X, Plug } from 'lucide-react';
+import { LayoutDashboard, Palette, Building2, AppWindow, Rocket, Hexagon, ChevronLeft, ExternalLink, CheckSquare, MessageCircle, X, Plug, Sliders } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { SidebarContext } from '@/lib/SidebarContext';
@@ -12,12 +12,18 @@ const navItems = [
   { path: '/pending-tasks-list', label: 'Pending Tasks', icon: CheckSquare },
   { path: '/branding', label: 'Design', icon: Palette },
   { path: '/org-profile', label: 'Org Profile', icon: Building2 },
-  { path: '/app-registry', label: 'App Registry', icon: AppWindow },
-  { 
-    label: 'App Management', 
+  {
+    label: 'App Management',
     submenu: [
+      { path: '/app-registry', label: 'App Registry', icon: AppWindow },
       { path: '/app-integrations', label: 'App Integrations', icon: Plug },
       { path: '/new-app', label: 'New App', icon: Rocket },
+    ]
+  },
+  {
+    label: 'Central App Controls',
+    submenu: [
+      { path: '/central-app-controls', label: 'App Controls', icon: Sliders },
     ]
   },
 ];

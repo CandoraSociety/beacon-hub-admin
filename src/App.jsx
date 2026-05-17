@@ -18,6 +18,7 @@ import NewAppLauncher from '@/pages/NewAppLauncher';
 import Permissions from '@/pages/Permissions';
 import PendingTasks from '@/pages/PendingTasks';
 import PendingTasksList from '@/pages/PendingTasksList';
+import CentralAppControls from '@/pages/CentralAppControls';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -48,10 +49,12 @@ const AuthenticatedApp = () => {
         <Route path="/branding" element={<Branding />} />
         <Route path="/org-profile" element={<OrgProfile />} />
         <Route path="/app-registry" element={<AppRegistry />} />
+
         <Route path="/app-integrations" element={<AppIntegrations />} />
         <Route path="/new-app" element={<NewAppLauncher />} />
         <Route path="/permissions" element={<Permissions />} />
         <Route path="/pending-tasks" element={<PendingTasks />} />
+        <Route path="/central-app-controls" element={<CentralAppControls />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
