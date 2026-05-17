@@ -396,7 +396,7 @@ export default function AppRegistryPage() {
 
        {setupLegacyOpen && (
          <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-           <div className="bg-card border border-border rounded-xl max-w-lg w-full p-6 space-y-4">
+           <div className="bg-card border border-border rounded-xl max-w-2xl w-full p-6 space-y-4">
              <div className="flex items-center justify-between">
                <h2 className="text-sm font-semibold text-foreground">Setup Legacy Apps</h2>
                <button onClick={() => { setSetupLegacyOpen(false); setSetupResult(null); }} className="p-1 hover:bg-secondary rounded-lg transition-colors">
@@ -407,7 +407,7 @@ export default function AppRegistryPage() {
              {!setupResult ? (
                <div className="space-y-3">
                  <p className="text-xs text-muted-foreground">
-                   This will auto-generate integration tokens and command URLs for all legacy apps (those missing these fields). Each app owner will need to implement the endpoint.
+                   This generates security credentials for your apps so they can receive commands from Beacon. You'll get a prompt to paste into each app's AI chat.
                  </p>
                  <div className="flex justify-end gap-2">
                    <Button variant="outline" size="sm" onClick={() => { setSetupLegacyOpen(false); setSetupResult(null); }}>Cancel</Button>
@@ -417,44 +417,27 @@ export default function AppRegistryPage() {
                  </div>
                </div>
              ) : (
-               <div className="space-y-3">
+               <div className="space-y-4">
                  <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                   <p className="text-xs font-medium text-emerald-400 mb-2">✓ Setup Complete</p>
+                   <p className="text-xs font-medium text-emerald-400 mb-1">✓ Ready to Go</p>
                    <p className="text-xs text-muted-foreground">
-                     {setupResult.updated.length} app(s) configured. Copy the credentials and AI prompt for each app:
+                     {setupResult.updated.length} app(s) have credentials. For each app below, copy the prompt and paste it into that app's AI chat.
                    </p>
                  </div>
 
-                 <div className="space-y-2 max-h-64 overflow-y-auto">
+                 <div className="space-y-2 max-h-72 overflow-y-auto">
                    {setupResult.updated.map((app, idx) => (
-                     <div key={idx} className="p-3 rounded-lg bg-muted/50 border border-white/5 space-y-2">
-                       <p className="text-xs font-medium text-foreground">{app.app_name}</p>
-                       <div className="text-[10px] space-y-1.5 font-mono text-muted-foreground">
-                         <div className="flex items-center justify-between gap-2">
-                           <span><span className="text-accent">Command URL:</span> {app.command_url}</span>
-                           <button
-                             onClick={() => {
-                               navigator.clipboard.writeText(app.command_url);
-                               toast.success('URL copied');
-                             }}
-                             className="text-[10px] px-2 py-1 rounded bg-primary/20 text-primary hover:bg-primary/30 whitespace-nowrap"
-                           >
-                             Copy
-                           </button>
-                         </div>
-                         <div className="flex items-center justify-between gap-2">
-                           <span><span className="text-accent">Token:</span> {app.integration_token}</span>
-                           <button
-                             onClick={() => {
-                               navigator.clipboard.writeText(app.integration_token);
-                               toast.success('Token copied');
-                             }}
-                             className="text-[10px] px-2 py-1 rounded bg-primary/20 text-primary hover:bg-primary/30 whitespace-nowrap"
-                           >
-                             Copy
-                           </button>
-                         </div>
+                     <div key={idx} className="p-4 rounded-lg bg-secondary/30 border border-white/10 space-y-3">
+                       <div className="flex items-center justify-between">
+                         <p className="text-sm font-medium text-foreground">{app.app_name}</p>
+                         <span className="text-[10px] text-muted-foreground">Step {idx + 1}</span>
                        </div>
+                       
+                       <div className="space-y-2 text-[11px]">
+                         <p className="text-muted-foreground"><span className="text-accent font-medium">Command URL:</span> <code className="bg-muted/50 px-1.5 py-0.5 rounded text-xs">{app.command_url}</code></p>
+                         <p className="text-muted-foreground"><span className="text-accent font-medium">Token:</span> <code className="bg-muted/50 px-1.5 py-0.5 rounded text-xs">{app.integration_token}</code></p>
+                       </div>
+
                        <button
                          onClick={() => {
                            const prompt = `I need to create a POST endpoint at "${app.command_url}" that:
@@ -465,20 +448,24 @@ export default function AppRegistryPage() {
 
 Create this endpoint in our app's backend. Make it secure and handle errors properly.`;
                            navigator.clipboard.writeText(prompt);
-                           toast.success('AI prompt copied');
+                           toast.success('Prompt copied! Paste it into this app\'s AI chat');
                          }}
-                         className="w-full text-[10px] px-2 py-1.5 rounded bg-accent/20 text-accent hover:bg-accent/30 transition-colors"
+                         className="w-full py-2 rounded-lg bg-accent/20 text-accent hover:bg-accent/30 transition-colors text-xs font-medium"
                        >
-                         Copy AI Prompt for This App
+                         📋 Copy Prompt for {app.app_name}
                        </button>
                      </div>
                    ))}
                  </div>
 
-                 <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                   <p className="text-[10px] text-blue-400">
-                     <strong>Next steps:</strong> For each app, go into that app's AI chat, paste the "Copy AI Prompt" text, and it'll help implement the endpoint.
-                   </p>
+                 <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 space-y-2">
+                   <p className="text-[11px] text-blue-400 font-medium">How to complete:</p>
+                   <ol className="text-[10px] text-blue-400 space-y-1 list-decimal list-inside">
+                     <li>Copy the prompt above for the first app</li>
+                     <li>Go to that app's Base44 chat</li>
+                     <li>Paste the prompt and let the AI create the endpoint</li>
+                     <li>Repeat for each app</li>
+                   </ol>
                  </div>
 
                  <Button size="sm" className="w-full" onClick={() => { setSetupLegacyOpen(false); setSetupResult(null); }}>
