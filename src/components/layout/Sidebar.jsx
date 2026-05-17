@@ -70,122 +70,124 @@ export default function Sidebar() {
         </Button>
       </div>
 
-      {/* Navigation */}
-      <nav className="p-3 space-y-1 overflow-y-auto">
-        {navItems.map((item) => {
-          if (item.submenu) {
-            return (
-              <div key={item.label} className="space-y-1">
-                {!collapsed && (
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground px-3 py-2">{item.label}</p>
-                )}
-                {item.submenu.map(({ path, label, icon: Icon }) => {
-                  const isActive = pathname === path;
-                  return (
-                    <Link
-                      key={path}
-                      to={path}
-                      title={collapsed ? label : ''}
-                      className={cn(
-                        'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 justify-center',
-                        collapsed && 'px-0',
-                        isActive
-                          ? 'bg-primary/15 text-primary'
-                          : 'text-muted-foreground hover:text-accent hover:bg-accent/25'
-                      )}
-                    >
-                      <Icon className={cn('w-4 h-4 flex-shrink-0', isActive && 'text-primary')} />
-                      {!collapsed && (
-                        <>
-                          {label}
-                          {isActive && (
-                            <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
-                          )}
-                        </>
-                      )}
-                    </Link>
-                  );
-                })}
-              </div>
-            );
-          }
-
-          const { path, label, icon: Icon } = item;
-          const isActive = pathname === path;
-          return (
-            <Link
-              key={path}
-              to={path}
-              title={collapsed ? label : ''}
-              className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 justify-center',
-                collapsed && 'px-0',
-                isActive
-                  ? 'bg-primary/15 text-primary'
-                  : 'text-muted-foreground hover:text-accent hover:bg-accent/25'
-              )}
-            >
-              <Icon className={cn('w-4 h-4 flex-shrink-0', isActive && 'text-primary')} />
-              {!collapsed && (
-                <>
-                  {label}
-                  {isActive && (
-                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
+      {/* Scrollable middle: nav + chat + connected apps */}
+      <div className="flex-1 overflow-y-auto min-h-0">
+        <nav className="p-3 space-y-1">
+          {navItems.map((item) => {
+            if (item.submenu) {
+              return (
+                <div key={item.label} className="space-y-1">
+                  {!collapsed && (
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground px-3 py-2">{item.label}</p>
                   )}
-                </>
+                  {item.submenu.map(({ path, label, icon: Icon }) => {
+                    const isActive = pathname === path;
+                    return (
+                      <Link
+                        key={path}
+                        to={path}
+                        title={collapsed ? label : ''}
+                        className={cn(
+                          'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 justify-center',
+                          collapsed && 'px-0',
+                          isActive
+                            ? 'bg-primary/15 text-primary'
+                            : 'text-muted-foreground hover:text-accent hover:bg-accent/25'
+                        )}
+                      >
+                        <Icon className={cn('w-4 h-4 flex-shrink-0', isActive && 'text-primary')} />
+                        {!collapsed && (
+                          <>
+                            {label}
+                            {isActive && (
+                              <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
+                            )}
+                          </>
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              );
+            }
+
+            const { path, label, icon: Icon } = item;
+            const isActive = pathname === path;
+            return (
+              <Link
+                key={path}
+                to={path}
+                title={collapsed ? label : ''}
+                className={cn(
+                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 justify-center',
+                  collapsed && 'px-0',
+                  isActive
+                    ? 'bg-primary/15 text-primary'
+                    : 'text-muted-foreground hover:text-accent hover:bg-accent/25'
+                )}
+              >
+                <Icon className={cn('w-4 h-4 flex-shrink-0', isActive && 'text-primary')} />
+                {!collapsed && (
+                  <>
+                    {label}
+                    {isActive && (
+                      <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
+                    )}
+                  </>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Chat + Connected Apps */}
+        <div className="px-3 pb-3 border-t border-white/5 pt-2">
+          <button
+            onClick={() => setChatOpen(true)}
+            title={collapsed ? 'Chat with Beacon' : ''}
+            className={cn(
+              'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 text-muted-foreground hover:text-accent hover:bg-accent/25',
+              collapsed && 'px-0 justify-center'
+            )}
+          >
+            <MessageCircle className="w-4 h-4 flex-shrink-0" />
+            {!collapsed && <span className="truncate flex-1">Chat with Beacon</span>}
+          </button>
+
+          {connectedApps.length > 0 && (
+            <div className="border-t border-white/5 pt-3 mt-2">
+              {!collapsed && (
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-2">Connected Apps</p>
               )}
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* Connected Apps */}
-      <div className="flex-1 px-3 pb-3 min-h-0 flex flex-col overflow-hidden border-t border-white/5 pt-2">
-         <button
-           onClick={() => setChatOpen(true)}
-           title={collapsed ? 'Chat with Beacon' : ''}
-           className={cn(
-             'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 text-muted-foreground hover:text-accent hover:bg-accent/25 group flex-shrink-0',
-             collapsed && 'px-0 justify-center'
-           )}
-         >
-           <MessageCircle className="w-4 h-4 flex-shrink-0" />
-           {!collapsed && <span className="truncate flex-1">Chat with Beacon</span>}
-         </button>
-
-         {connectedApps.length > 0 && (
-           <div className={cn("border-t border-white/5 pt-3 mt-2 mb-1 flex flex-col min-h-0 flex-1", !collapsed && "")}>
-             {!collapsed && (
-               <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-2 flex-shrink-0">Connected Apps</p>
-             )}
-             <div className="space-y-1 overflow-y-auto flex-1 min-h-0">
-               {connectedApps.map(app => (
-                 <a
-                   key={app.id}
-                   href={app.app_url}
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   title={app.app_name}
-                   className={cn(
-                     'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-muted-foreground hover:text-accent hover:bg-accent/25 group flex-shrink-0',
-                     collapsed && 'px-0 justify-center'
-                   )}
-                 >
-                   <div className="w-5 h-5 rounded bg-primary/20 flex items-center justify-center flex-shrink-0 text-[10px] font-bold text-primary uppercase">
-                     {app.app_name.charAt(0)}
-                   </div>
-                   {!collapsed && (
-                     <>
-                       <span className="truncate flex-1">{app.app_name}</span>
-                       <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-60 flex-shrink-0" />
-                     </>
-                   )}
-                 </a>
-               ))}
-             </div>
-           </div>
-         )}
-       </div>
+              <div className="space-y-1">
+                {connectedApps.map(app => (
+                  <a
+                    key={app.id}
+                    href={app.app_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={app.app_name}
+                    className={cn(
+                      'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-muted-foreground hover:text-accent hover:bg-accent/25 group',
+                      collapsed && 'px-0 justify-center'
+                    )}
+                  >
+                    <div className="w-5 h-5 rounded bg-primary/20 flex items-center justify-center flex-shrink-0 text-[10px] font-bold text-primary uppercase">
+                      {app.app_name.charAt(0)}
+                    </div>
+                    {!collapsed && (
+                      <>
+                        <span className="truncate flex-1">{app.app_name}</span>
+                        <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-60 flex-shrink-0" />
+                      </>
+                    )}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
 
        {chatOpen && (
          <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
