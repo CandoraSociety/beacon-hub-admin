@@ -16,7 +16,7 @@ Deno.serve(async (req) => {
     }
 
     // Update the app in the registry
-    await base44.asServiceRole.entities.AppRegistry.update(appId, {
+    const updatedApp = await base44.asServiceRole.entities.AppRegistry.update(appId, {
       app_name: newName,
     });
 
@@ -30,24 +30,26 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Push the new name to the app via sendCommand if it has a command_url
-    const appRecord = await base44.asServiceRole.entities.AppRegistry.filter({ id: appId });
-    const app = appRecord[0];
+    // Send command to app if it has credentials
     let commandResult = null;
-
-    if (app && app.command_url && app.integration_token) {
-      const cmdResponse = await fetch(app.command_url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${app.integration_token}`,
-        },
-        body: JSON.stringify({
-          command: 'update_app_name',
-          payload: { app_name: newName, display_name: newName },
-        }),
-      });
-      commandResult = await cmdResponse.json();
+    if (updatedApp.command_url && updatedApp.integration_token) {
+      try {
+        const cmdResponse = await fetch(updatedApp.command_url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${updatedApp.integration_token}`,
+          },
+          body: JSON.stringify({
+            command: 'update_app_name',
+            payload: { app_name: newName },
+          }),
+        });
+        commandResult = await cmdResponse.json();
+      } catch (cmdError) {
+        console.error('Command send failed:', cmdError);
+        // Don't fail the entire request if command fails
+      }
     }
 
     return Response.json({
