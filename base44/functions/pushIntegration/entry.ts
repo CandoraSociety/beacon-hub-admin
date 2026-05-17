@@ -9,95 +9,55 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    const body = await req.json();
-    const { app_id, app_url, app_token, integration_id, integration_name } = body;
+    const { app_ids, integration_id, integration_name } = await req.json();
 
-    if (!app_id || !app_url || !app_token || !integration_id || !integration_name) {
-      return Response.json({ error: 'Missing required fields' }, { status: 400 });
+    if (!app_ids || !integration_id || !integration_name) {
+      return Response.json({ error: 'Missing required fields: app_ids, integration_id, integration_name' }, { status: 400 });
     }
 
-    // Get integration code based on integration_id
-    let integrationCode = '';
-    
-    if (integration_id === 'sync-app-name') {
-      integrationCode = `
-import { base44 } from '@/api/base44Client';
-import { useEffect, useState } from 'react';
+    // Store the integration push in HubConfig so target apps can poll for it
+    const configKey = `integration_${integration_id}`;
+    const configs = await base44.asServiceRole.entities.HubConfig.filter({ category: 'integration' });
+    const existing = configs.find(c => c.key === configKey);
 
-export function useAppNameSync(appSlug) {
-  const [appName, setAppName] = useState('');
-  
-  useEffect(() => {
-    async function fetchConfig() {
-      try {
-        const response = await base44.functions.invoke('getAppConfig', { app_slug: appSlug });
-        setAppName(response.data.app_name || '');
-      } catch (error) {
-        console.error('Failed to sync app name:', error);
-      }
-    }
-    
-    fetchConfig();
-    const interval = setInterval(fetchConfig, 300000); // Refresh every 5 minutes
-    return () => clearInterval(interval);
-  }, [appSlug]);
-  
-  return appName;
-}
-`;
-    } else if (integration_id === 'sync-branding') {
-      integrationCode = `
-import { base44 } from '@/api/base44Client';
-import { useEffect, useState } from 'react';
-
-export function useBrandingSync() {
-  const [branding, setBranding] = useState(null);
-  
-  useEffect(() => {
-    async function fetchBranding() {
-      try {
-        const response = await base44.functions.invoke('getBranding', {});
-        setBranding(response.data);
-      } catch (error) {
-        console.error('Failed to sync branding:', error);
-      }
-    }
-    
-    fetchBranding();
-    const interval = setInterval(fetchBranding, 300000); // Refresh every 5 minutes
-    return () => clearInterval(interval);
-  }, []);
-  
-  return branding;
-}
-`;
-    }
-
-    // Send integration code to the app via its Base44 backend function
-    const response = await fetch(`${app_url}/api/functions/receiveIntegration`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${app_token}`,
-      },
-      body: JSON.stringify({
-        integration_id: integration_id,
-        integration_name: integration_name,
-        code: integrationCode,
-      }),
+    const integrationPayload = JSON.stringify({
+      integration_id,
+      integration_name,
+      app_ids,
+      pushed_at: new Date().toISOString(),
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      return Response.json(
-        { error: `App rejected integration: ${errorText}` },
-        { status: response.status }
-      );
+    if (existing) {
+      await base44.asServiceRole.entities.HubConfig.update(existing.id, { value: integrationPayload });
+    } else {
+      await base44.asServiceRole.entities.HubConfig.create({
+        key: configKey,
+        value: integrationPayload,
+        category: 'integration',
+        description: `Integration push record for: ${integration_name}`,
+      });
+    }
+
+    // Update last push timestamp
+    const timestampKey = 'last_integration_push_timestamp';
+    const tsRecord = configs.find(c => c.key === timestampKey);
+    const timestamp = new Date().toISOString();
+    if (tsRecord) {
+      await base44.asServiceRole.entities.HubConfig.update(tsRecord.id, { value: timestamp });
+    } else {
+      await base44.asServiceRole.entities.HubConfig.create({
+        key: timestampKey,
+        value: timestamp,
+        category: 'integration',
+        description: 'Timestamp of last integration push',
+      });
     }
 
     return Response.json({
       success: true,
-      message: `${integration_name} pushed to app`,
+      message: `${integration_name} stored — target apps will pick it up on next poll`,
+      integration_id,
+      app_ids,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
